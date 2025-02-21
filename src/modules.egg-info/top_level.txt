@@ -1,4 +1,0 @@
-modfenics
-modfenicsx
-modfiredrake
-testcases
