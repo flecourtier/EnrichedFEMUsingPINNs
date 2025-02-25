@@ -3,7 +3,7 @@ name: Build Sphinx Documentation
 on:
   push:
     branches:
-      - main  # ou toute autre branche que tu veux suivre
+      - main
   pull_request:
     branches:
       - main
@@ -16,14 +16,19 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
 
-    - name: Pull Docker image
-      run: docker pull flecourtier/enrichedfem:1.0.0
-
-    - name: Run container and generate Sphinx documentation
+    - name: Set up Docker Compose
       run: |
-        docker run --rm -v ${{ github.workspace }}:/workspace flecourtier/enrichedfem:1.0.0 bash -c "cd docs && sphinx-build -b html . _build"
-    
-    - name: Liste des fichiers dans le répertoire docs
+        sudo apt-get install -y docker-compose  # Installer Docker Compose
+
+    - name: Start the Docker container using Docker Compose
+      run: |
+        docker compose -f docker-compose.yml up -d  # Démarrer le conteneur en arrière-plan
+
+    - name: Wait for the Sphinx container to finish
+      run: |
+        docker compose -f docker-compose.yml exec sphinx bash -c "while [ ! -f /docs/_build/html/index.html ]; do sleep 5; done"  # Attendre que la documentation soit générée
+
+    - name: List files in the docs directory
       run: ls -R ${{ github.workspace }}/docs
 
     - name: Deploy to GitHub Pages
@@ -32,3 +37,6 @@ jobs:
       with:
         branch: gh-pages
         folder: docs/_build/html
+
+    - name: Stop and remove Docker containers
+      run: docker-compose -f docker-compose.yml down  # Nettoyage des conteneurs après la génération
