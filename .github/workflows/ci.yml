@@ -24,6 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build Sphinx documentation
+        working-directory: docs/sphinx
         run: make html
 
       - name: Deploy sphinx 🚀
