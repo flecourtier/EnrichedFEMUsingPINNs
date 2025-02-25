@@ -32,4 +32,4 @@ jobs:
         with:
           branch: gh-pages # The branch the action should deploy to.
           target-folder: build_sphinx
-          folder: build/docs/sphinx/
+          folder: docs/_build/html
