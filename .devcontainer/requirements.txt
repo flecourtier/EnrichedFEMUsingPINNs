@@ -1,4 +1,0 @@
-# Install PyTorch and torchvision
-torch==2.3.0
-torchvision
-torchaudio

@@ -17,8 +17,7 @@ RUN groupadd -g "${GID}" ${MYUSER} \
 # Installation de PyTorch
 WORKDIR /home/${MYUSER}
 
-COPY ./requirements.txt ./
-RUN python3 -m pip install -r requirements.txt  \
+RUN python3 -m pip install -r torch==2.3.0 torchvision torchaudio  \
 -f https://download.pytorch.org/whl/cu121/torch_stable.html
 
 # Ajouter l'utilisateur $MYUSER au groupe sudo et lui permettre d'utiliser sudo sans mot de passe
