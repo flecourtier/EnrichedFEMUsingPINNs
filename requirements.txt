@@ -3,7 +3,7 @@ numpy
 sympy
 pandas
 dataframe_image
-dolfin
+fenics
 abc
 torch
 mshr
