@@ -19,7 +19,8 @@ jobs:
 
       - name: Build and run the container from .devcontainer
         run: |
-          docker build -f .devcontainer/Dockerfile -t sphinx-docs .
+          cd .devcontainer
+          docker compose build -t sphinx-docs .
           docker run --rm -v "$(pwd)/docs/_build:/docs/_build" sphinx-docs make html
 
       - name: Deploy to GitHub Pages
