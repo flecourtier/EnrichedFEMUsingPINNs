@@ -25,8 +25,11 @@ jobs:
           cd /mnt/docs && 
           make html"
 
-    - name: Check if documentation was generated
+    - name: Display logs and check if documentation was generated
       run: |
+        # Check if the directory exists
+        ls -R docs/_build
+        # If it doesn't exist, stop the process
         if [ ! -d "docs/_build/html" ]; then
           echo "Documentation not generated!"
           exit 1
