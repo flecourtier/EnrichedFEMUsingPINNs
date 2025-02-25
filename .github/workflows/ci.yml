@@ -1,47 +1,34 @@
-name: Build Sphinx Documentation
+name: Deploy Documentation
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - main  # Déclenche le workflow lors d'un push vers la branche `main`
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v3
 
-    - name: Set up Docker Compose
-      run: |
-        sudo apt-get install -y docker-compose  # Installer Docker Compose
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Start the Docker container using Docker Compose
-      run: |
-        docker compose -f docker-compose.yml up -d  # Démarrer le conteneur en arrière-plan
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Wait for the Sphinx container to finish
-      run: |
-        # Attendre que le conteneur soit en cours d'exécution et que la documentation soit générée
-        docker compose -f docker-compose.yml logs -f sphinx &  # Afficher les logs en temps réel
-        while ! docker-compose -f docker-compose.yml exec sphinx ls /docs/_build/html/index.html; do
-          echo "Attente de la génération de la documentation..."
-          sleep 5
-        done
+      - name: Build Sphinx documentation
+        run: make html
 
-    - name: List files in the docs directory
-      run: ls -R ${{ github.workspace }}/docs
-
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: gh-pages
-        folder: docs/_build/html
-
-    - name: Stop and remove Docker containers
-      run: docker-compose -f docker-compose.yml down  # Nettoyage des conteneurs après la génération
+      - name: Deploy sphinx 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          target-folder: build_sphinx
+          folder: build/docs/sphinx/

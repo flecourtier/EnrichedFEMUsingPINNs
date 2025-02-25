@@ -1,6 +1,0 @@
-services:
-  sphinx:
-    image: flecourtier/enrichedfem:1.0.0  # Utilisation de l'image Docker récupérée en ligne
-    volumes:
-      - ./docs:/docs  # Monter le dossier docs dans le conteneur
-    command: make html  # Commande pour générer la documentation
