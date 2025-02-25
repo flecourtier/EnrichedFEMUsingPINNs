@@ -4,7 +4,6 @@ sympy
 pandas
 dataframe_image
 fenics
-abc
 torch
 mshr
 time
