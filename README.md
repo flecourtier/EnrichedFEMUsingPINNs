@@ -1,3 +1,1 @@
-# EnrichedFEMUsingPINNs
-
-This repo is in progress.
+# Documentation
