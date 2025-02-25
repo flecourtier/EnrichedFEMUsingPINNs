@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  sphinx:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile  # Chemin vers ton Dockerfile
+    volumes:
+      - ./docs:/docs  # Monter le dossier docs dans le conteneur
+    command: make html  # Commande qui génère la documentation

@@ -19,9 +19,9 @@ jobs:
 
       - name: Build and run the container from .devcontainer
         run: |
-          cd .devcontainer
-          docker compose build -t sphinx-docs .
-          docker run --rm -v "$(pwd)/docs/_build:/docs/_build" sphinx-docs make html
+          docker-compose -f docker-compose.yml build  # Construire les services
+          docker-compose -f docker-compose.yml up --abort-on-container-exit  # Exécuter la commande 'make html' dans le service
+
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
