@@ -21,7 +21,7 @@ jobs:
 
     - name: Run container and generate Sphinx documentation
       run: |
-        docker run --rm -v ${{ github.workspace }}:/mnt flecourtier/enrichedfem:1.0.0 bash -c "cd /mnt/docs && make html"
+        docker run --rm -v ${{ github.workspace }}:/mnt flecourtier/enrichedfem:1.0.0 bash -c "cd /mnt/EnrichedFEMUsingPINNs/docs && make html"
     
     - name: Liste des fichiers dans le répertoire docs
       run: ls -R ${{ github.workspace }}/docs
