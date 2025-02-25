@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from testcases.utils import create_tree,select_param,compute_slope
-from modfenics.error_estimations.utils import get_solver_type
+from enrichedfem.testcases.utils import create_tree,select_param,compute_slope
+from enrichedfem.modfenics.error_estimations.utils import get_solver_type
 
 class ErrorEstimations:
     """Class to run error estimations for a given problem and a given parameter.

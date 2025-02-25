@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from testcases.utils import create_tree,get_random_params,compute_slope
-from modfenics.error_estimations.utils import get_solver_type
+from enrichedfem.testcases.utils import create_tree,get_random_params,compute_slope
+from enrichedfem.modfenics.error_estimations.utils import get_solver_type
 
 class GainsEnhancedFEM:
     def __init__(self, n_params, pb_considered, **kwargs):

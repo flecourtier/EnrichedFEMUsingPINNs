@@ -1,4 +1,4 @@
-from testcases.geometry.geometry_1D import Line1
+from enrichedfem.testcases.geometry.geometry_1D import Line1
 from math import *
 import dolfin
 import abc

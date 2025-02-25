@@ -7,8 +7,8 @@ compute_H1norm = False
 # Imports #
 ###########
 
-from modfenics.fenics_expressions.fenics_expressions import get_uex_expr
-from modfenics.utils import get_utheta_fenics_onV
+from enrichedfem.modfenics.fenics_expressions.fenics_expressions import get_uex_expr
+from enrichedfem.modfenics.utils import get_utheta_fenics_onV
 import dolfin as df
 
 import abc

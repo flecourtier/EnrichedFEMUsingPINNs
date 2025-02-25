@@ -1,7 +1,7 @@
-from testcases.geometry.geometry_2D import Donut, Square, Circle
-from testcases.geometry.geometry_1D import Line
+from enrichedfem.testcases.geometry.geometry_2D import Donut, Square, Circle
+from enrichedfem.testcases.geometry.geometry_1D import Line
 import dolfin as df
-from modfenics.solver_fem.FEMSolver import FEMSolver
+from enrichedfem.modfenics.solver_fem.FEMSolver import FEMSolver
 import numpy as np
 import mshr
 import time

@@ -4,7 +4,7 @@ import pandas as pd
 import dataframe_image as dfi
 import os
 
-from modfenics.error_estimations.error_estimations import ErrorEstimations
+from enrichedfem.modfenics.error_estimations.error_estimations import ErrorEstimations
 
 class CompareMethods:
     def __init__(self,error_estimations:ErrorEstimations):

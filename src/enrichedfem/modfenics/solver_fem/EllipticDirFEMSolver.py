@@ -4,9 +4,9 @@ print_time = True
 # Imports #
 ###########
 
-from modfenics.fenics_expressions.fenics_expressions import get_f_expr,AnisotropyExpr
-from modfenics.solver_fem.FEMSolver import FEMSolver
-from modfenics.utils import get_divmatgradutheta_fenics_fromV, get_utheta_fenics_onV,get_gradutheta_fenics_fromV,get_laputheta_fenics_fromV
+from enrichedfem.modfenics.fenics_expressions.fenics_expressions import get_f_expr,AnisotropyExpr
+from enrichedfem.modfenics.solver_fem.FEMSolver import FEMSolver
+from enrichedfem.modfenics.utils import get_divmatgradutheta_fenics_fromV, get_utheta_fenics_onV,get_gradutheta_fenics_fromV,get_laputheta_fenics_fromV
 import dolfin as df
 
 import numpy as np
@@ -25,8 +25,8 @@ current = Path(__file__).parent.parent
 # FEM #
 #######
 
-from modfenics.solver_fem.GeometryFEMSolver import SquareFEMSolver,LineFEMSolver
-from testcases.geometry.geometry_2D import Square
+from enrichedfem.modfenics.solver_fem.GeometryFEMSolver import SquareFEMSolver,LineFEMSolver
+from enrichedfem.testcases.geometry.geometry_2D import Square
 
 class EllipticDirFEMSolver(FEMSolver):    
     def _define_fem_system(self,params,u,v,V_solve):

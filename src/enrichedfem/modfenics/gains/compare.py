@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import dataframe_image as dfi
 
-from modfenics.gains.gains import GainsEnhancedFEM
+from enrichedfem.modfenics.gains.gains import GainsEnhancedFEM
 
 class CompareGainsMethods:
     def __init__(self,gains_enhanced_fem:GainsEnhancedFEM):

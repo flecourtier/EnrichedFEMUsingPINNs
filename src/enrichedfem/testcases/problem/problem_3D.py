@@ -1,4 +1,4 @@
-from testcases.geometry.geometry_3D import Cube1
+from enrichedfem.testcases.geometry.geometry_3D import Cube1
 
 class TestCase1_3D:
     def __init__(self):

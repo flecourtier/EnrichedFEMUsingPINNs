@@ -12,8 +12,8 @@ import scimba.nets.training_tools as training_tools
 from scimba.equations import domain, pdes
 import time
 
-from testcases.geometry.geometry_3D import Cube
-from testcases.problem.problem_3D import TestCase1_3D
+from enrichedfem.testcases.geometry.geometry_3D import Cube
+from enrichedfem.testcases.problem.problem_3D import TestCase1_3D
 
 current = Path(__file__).parent.parent.parent.parent.parent.parent
 

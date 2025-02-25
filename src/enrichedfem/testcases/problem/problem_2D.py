@@ -1,4 +1,4 @@
-from testcases.geometry.geometry_2D import Square1, UnitSquare, UnitCircle, Circle2, Donut1, Donut2, SquareDonut1
+from enrichedfem.testcases.geometry.geometry_2D import Square1, UnitSquare, UnitCircle, Circle2, Donut1, Donut2, SquareDonut1
 from math import *
 import torch
 import abc

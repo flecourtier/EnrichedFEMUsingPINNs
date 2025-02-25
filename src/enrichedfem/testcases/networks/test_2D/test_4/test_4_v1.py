@@ -17,8 +17,8 @@ import scimba.sampling.uniform_sampling as uniform_sampling
 import torch
 from scimba.equations import pdes
 
-from testcases.geometry.geometry_2D import Donut
-from testcases.problem.problem_2D import TestCase4
+from enrichedfem.testcases.geometry.geometry_2D import Donut
+from enrichedfem.testcases.problem.problem_2D import TestCase4
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"torch loaded; device is {device}")
