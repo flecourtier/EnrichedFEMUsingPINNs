@@ -1,0 +1,18 @@
+services:
+  enrichedfem:
+    user: "1001:1001"
+    container_name: contenrichedfem
+    working_dir: /usr/src/app
+    build:
+      dockerfile: Dockerfile.python
+    volumes:
+      - ~/.vscode-server:/root/.vscode-server
+    command: /bin/bash
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    tty: true
