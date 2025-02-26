@@ -23,6 +23,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install project modules
+        run: |
+          pip install -e .
+        
+
       - name: Build Sphinx documentation
         working-directory: docs/sphinx
         run: make html
