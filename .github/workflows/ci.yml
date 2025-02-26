@@ -13,38 +13,47 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # Installer Miniconda
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.10'
+          auto-update-conda: true
+          conda-version: 'latest'
 
-      # - name: Install dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install -r requirements.txt
-
-      - name: Install FEniCS
+      # Créer un environnement Conda et l'activer
+      - name: Install FEniCS and activate Conda environment
         run: |
-          python -m pip install fenics
+          conda create -n fenicsproject -c conda-forge fenics
+          source activate fenicsproject
 
+      # Vérifier l'installation de FEniCS
       - name: Vérifier l'installation de FEniCS
         run: |
           python -c "import dolfin; print(dolfin.__version__)"
 
+      # Installer les dépendances Python supplémentaires
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # - name: Install project modules
-      #   run: |
-      #     pip install -e .
-        
+      # Installer les modules du projet
+      - name: Install project modules
+        run: |
+          pip install -e .
 
-      # - name: Build Sphinx documentation
-      #   working-directory: docs/sphinx
-      #   run: make html
+      # Construire la documentation Sphinx
+      - name: Build Sphinx documentation
+        working-directory: docs/sphinx
+        run: |
+          source activate myenv  # Réactiver l'environnement Conda
+          make html  # Générer la documentation
 
-      # - name: Deploy sphinx 🚀
-      #   uses: JamesIves/github-pages-deploy-action@v4.3.3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     branch: gh-pages # The branch the action should deploy to.
-      #     target-folder: build_sphinx
-      #     folder: docs/sphinx/_build/html
+      # Déployer la documentation sur GitHub Pages
+      - name: Deploy sphinx 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          target-folder: build_sphinx
+          folder: docs/sphinx/_build/html
