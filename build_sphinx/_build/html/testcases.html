@@ -53,8 +53,15 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testcases-utils-module">testcases.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-testcases.utils">testcases.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#testcases.utils.compute_slope"><code class="docutils literal notranslate"><span class="pre">compute_slope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testcases.utils.create_tree"><code class="docutils literal notranslate"><span class="pre">create_tree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testcases.utils.get_random_param"><code class="docutils literal notranslate"><span class="pre">get_random_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testcases.utils.get_random_params"><code class="docutils literal notranslate"><span class="pre">get_random_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testcases.utils.select_param"><code class="docutils literal notranslate"><span class="pre">select_param()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-testcases">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -91,22 +98,100 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="testcases.geometry.html">testcases.geometry package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#testcases-geometry-geometry-1d-module">testcases.geometry.geometry_1D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#testcases-geometry-geometry-2d-module">testcases.geometry.geometry_2D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#testcases-geometry-geometry-3d-module">testcases.geometry.geometry_3D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#module-testcases.geometry.geometry_1D">testcases.geometry.geometry_1D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_1D.Line"><code class="docutils literal notranslate"><span class="pre">Line</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_1D.Line1"><code class="docutils literal notranslate"><span class="pre">Line1</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#module-testcases.geometry.geometry_2D">testcases.geometry.geometry_2D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Circle"><code class="docutils literal notranslate"><span class="pre">Circle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Circle2"><code class="docutils literal notranslate"><span class="pre">Circle2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Donut"><code class="docutils literal notranslate"><span class="pre">Donut</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Donut1"><code class="docutils literal notranslate"><span class="pre">Donut1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Donut2"><code class="docutils literal notranslate"><span class="pre">Donut2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Square"><code class="docutils literal notranslate"><span class="pre">Square</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.Square1"><code class="docutils literal notranslate"><span class="pre">Square1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.SquareDonut"><code class="docutils literal notranslate"><span class="pre">SquareDonut</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.SquareDonut1"><code class="docutils literal notranslate"><span class="pre">SquareDonut1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.UnitCircle"><code class="docutils literal notranslate"><span class="pre">UnitCircle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_2D.UnitSquare"><code class="docutils literal notranslate"><span class="pre">UnitSquare</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#module-testcases.geometry.geometry_3D">testcases.geometry.geometry_3D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_3D.Cube"><code class="docutils literal notranslate"><span class="pre">Cube</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.geometry.html#testcases.geometry.geometry_3D.Cube1"><code class="docutils literal notranslate"><span class="pre">Cube1</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.geometry.html#module-testcases.geometry">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testcases.networks.html">testcases.networks package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testcases.networks.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.networks.html#module-testcases.networks">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testcases.problem.html">testcases.problem package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#testcases-problem-problem-1d-module">testcases.problem.problem_1D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#testcases-problem-problem-2d-module">testcases.problem.problem_2D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#testcases-problem-problem-3d-module">testcases.problem.problem_3D module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#module-testcases.problem.problem_2D">testcases.problem.problem_2D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1"><code class="docutils literal notranslate"><span class="pre">TestCase1</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.f"><code class="docutils literal notranslate"><span class="pre">TestCase1.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.g"><code class="docutils literal notranslate"><span class="pre">TestCase1.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.grad2u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase1.grad2u_ex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.gradf"><code class="docutils literal notranslate"><span class="pre">TestCase1.gradf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.gradu_ex"><code class="docutils literal notranslate"><span class="pre">TestCase1.gradu_ex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase1.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase1.u_ex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase2"><code class="docutils literal notranslate"><span class="pre">TestCase2</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase2.f"><code class="docutils literal notranslate"><span class="pre">TestCase2.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase2.g"><code class="docutils literal notranslate"><span class="pre">TestCase2.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase2.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase2.u_ex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase2D"><code class="docutils literal notranslate"><span class="pre">TestCase2D</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase3"><code class="docutils literal notranslate"><span class="pre">TestCase3</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase3.anisotropy_matrix"><code class="docutils literal notranslate"><span class="pre">TestCase3.anisotropy_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase3.f"><code class="docutils literal notranslate"><span class="pre">TestCase3.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase3.g"><code class="docutils literal notranslate"><span class="pre">TestCase3.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase3.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase3.u_ex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase4"><code class="docutils literal notranslate"><span class="pre">TestCase4</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase4.f"><code class="docutils literal notranslate"><span class="pre">TestCase4.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase4.g"><code class="docutils literal notranslate"><span class="pre">TestCase4.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase4.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase4.u_ex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5"><code class="docutils literal notranslate"><span class="pre">TestCase5</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.f"><code class="docutils literal notranslate"><span class="pre">TestCase5.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.g"><code class="docutils literal notranslate"><span class="pre">TestCase5.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.gr"><code class="docutils literal notranslate"><span class="pre">TestCase5.gr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.grad2u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase5.grad2u_ex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.gradf"><code class="docutils literal notranslate"><span class="pre">TestCase5.gradf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.gradu_ex"><code class="docutils literal notranslate"><span class="pre">TestCase5.gradu_ex()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.h_ext"><code class="docutils literal notranslate"><span class="pre">TestCase5.h_ext()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.h_int"><code class="docutils literal notranslate"><span class="pre">TestCase5.h_int()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase5.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase5.u_ex()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase6"><code class="docutils literal notranslate"><span class="pre">TestCase6</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase6.f"><code class="docutils literal notranslate"><span class="pre">TestCase6.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase6.g"><code class="docutils literal notranslate"><span class="pre">TestCase6.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_2D.TestCase6.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase6.u_ex()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#module-testcases.problem.problem_3D">testcases.problem.problem_3D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_3D.TestCase1_3D"><code class="docutils literal notranslate"><span class="pre">TestCase1_3D</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_3D.TestCase1_3D.f"><code class="docutils literal notranslate"><span class="pre">TestCase1_3D.f()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_3D.TestCase1_3D.g"><code class="docutils literal notranslate"><span class="pre">TestCase1_3D.g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="testcases.problem.html#testcases.problem.problem_3D.TestCase1_3D.u_ex"><code class="docutils literal notranslate"><span class="pre">TestCase1_3D.u_ex()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testcases.problem.html#module-testcases.problem">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -115,11 +200,36 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="testcases-utils-module">
-<h2>testcases.utils module<a class="headerlink" href="#testcases-utils-module" title="Link to this heading"></a></h2>
+<section id="module-testcases.utils">
+<span id="testcases-utils-module"></span><h2>testcases.utils module<a class="headerlink" href="#module-testcases.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="testcases.utils.compute_slope">
+<span class="sig-prename descclassname"><span class="pre">testcases.utils.</span></span><span class="sig-name descname"><span class="pre">compute_slope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_nb_vert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_err</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/testcases/utils.html#compute_slope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testcases.utils.compute_slope" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="testcases.utils.create_tree">
+<span class="sig-prename descclassname"><span class="pre">testcases.utils.</span></span><span class="sig-name descname"><span class="pre">create_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/testcases/utils.html#create_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testcases.utils.create_tree" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="testcases.utils.get_random_param">
+<span class="sig-prename descclassname"><span class="pre">testcases.utils.</span></span><span class="sig-name descname"><span class="pre">get_random_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_domain</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/testcases/utils.html#get_random_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testcases.utils.get_random_param" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="testcases.utils.get_random_params">
+<span class="sig-prename descclassname"><span class="pre">testcases.utils.</span></span><span class="sig-name descname"><span class="pre">get_random_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_domain</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/testcases/utils.html#get_random_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testcases.utils.get_random_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="testcases.utils.select_param">
+<span class="sig-prename descclassname"><span class="pre">testcases.utils.</span></span><span class="sig-name descname"><span class="pre">select_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/testcases/utils.html#select_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#testcases.utils.select_param" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-testcases">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-testcases" title="Link to this heading"></a></h2>
 </section>
 </section>
 

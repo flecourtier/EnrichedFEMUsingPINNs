@@ -5,7 +5,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../src'))
+sys.path.insert(0, os.path.abspath('../../src/enrichedfem'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -41,7 +41,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+# html_static_path = ['_static']
 html_theme_options = {
     'navigation_depth': 4,  # Nombre de niveaux affichés dans le menu
 }
