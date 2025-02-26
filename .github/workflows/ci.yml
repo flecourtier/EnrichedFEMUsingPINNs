@@ -15,9 +15,9 @@ jobs:
 
       # Installer Miniconda
       - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          conda-version: 'latest'
+          miniconda-version: 'latest'
 
       # Créer un environnement Conda et l'activer
       - name: Install FEniCS and activate Conda environment
