@@ -28,7 +28,13 @@ current = Path(__file__).parent.parent
 from enrichedfem.modfenics.solver_fem.GeometryFEMSolver import SquareFEMSolver,LineFEMSolver
 from enrichedfem.testcases.geometry.geometry_2D import Square
 
-class EllipticDirFEMSolver(FEMSolver):    
+class EllipticDirFEMSolver(FEMSolver):
+    """FEM solver for an anisotropic elliptic problem with Dirichlet boundary conditions.
+
+    This class defines the variational formulation and assembles the system for
+    this Elliptic problem with Dirichlet boundary conditions, including standard FEM
+    and additive correction.
+    """    
     def _define_fem_system(self,params,u,v,V_solve):
         boundary = "on_boundary"
         
@@ -73,59 +79,22 @@ class EllipticDirFEMSolver(FEMSolver):
         return A,L
     
     def _define_corr_mult_system(self,params,u,v,u_PINNs,V_solve,M,impose_bc):
-        assert isinstance(self.pb_considered.geometry, Square)
-        assert impose_bc
-        
-        u_theta_Vtheta = get_utheta_fenics_onV(self.V_theta,params,u_PINNs) 
-        u_theta_M_Vtheta = df.Function(self.V_theta)
-        u_theta_M_Vtheta.vector()[:] = u_theta_Vtheta.vector()[:] + M
-        
-        boundary = "on_boundary"
-        f_expr = get_f_expr(params, degree=self.high_degree, domain=V_solve.mesh(), pb_considered=self.pb_considered)
-        dx = df.Measure("dx", domain=V_solve.mesh())
-
-        g = df.Constant(1.0)
-        bc = df.DirichletBC(V_solve, g, boundary)
-        
-        mat = AnisotropyExpr(params, degree=self.high_degree, domain=V_solve.mesh(), pb_considered=self.pb_considered) 
-        a = df.inner(mat*df.grad(u_theta_M_Vtheta * u), df.grad(u_theta_M_Vtheta * v)) * dx
-        l = f_expr * u_theta_M_Vtheta * v * dx
-
-        A = df.assemble(a)
-        L = df.assemble(l)
-        bc.apply(A, L)
-        
-        return A,L
-    
-    # def _define_corr_mult_system(self,params,u,v,u_PINNs,V_solve,M):
-    #     assert isinstance(self.pb_considered.geometry, Square)
-    #     u_theta_V = get_utheta_fenics_onV(V_solve,params,u_PINNs) 
-    #     u_theta_M_V = df.Function(V_solve)
-    #     u_theta_M_V.vector()[:] = u_theta_V.vector()[:] + M
-        
-    #     grad_u_theta_V = get_gradutheta_fenics_fromV(V_solve,params,u_PINNs) # same as grad_u_theta_M_V
-        
-    #     boundary = "on_boundary"
-    #     f_expr = get_f_expr(params, degree=self.high_degree, domain=V_solve.mesh(), pb_considered=self.pb_considered)
-    #     dx = df.Measure("dx", domain=V_solve.mesh())
-
-    #     g = df.Constant(1.0)
-    #     bc = df.DirichletBC(V_solve, g, boundary)
-        
-    #     mat = AnisotropyExpr(params, degree=self.high_degree, domain=V_solve.mesh(), pb_considered=self.pb_considered) 
-    #     a = df.inner(mat * (grad_u_theta_V * u + u_theta_M_V * df.grad(u)), df.grad(grad_u_theta_V * v + u_theta_M_V * df.grad(v))) * dx
-    #     l = f_expr * u_theta_M_V * v * dx
-
-    #     A = df.assemble(a)
-    #     L = df.assemble(l)
-    #     bc.apply(A, L)
-        
-    #     return A,L
+        pass
     
 class EllipticDirSquareFEMSolver(EllipticDirFEMSolver,SquareFEMSolver):
+    """FEM solver for the anisotropic elliptic problem with Dirichlet boundary conditions on a square.
+
+    This class combines the EllipticDirFEMSolver and SquareFEMSolver to solve the anisotropic elliptic problem with Dirichlet boundary conditions on a square.
+    """
     pass
 
 class Elliptic1DDirFEMSolver(FEMSolver):
+    """FEM solver for general elliptic system and convection-dominated regime with Dirichlet boundary conditions.
+
+    This class defines the variational formulation and assembles the system for
+    this 1D Elliptic problem with Dirichlet boundary conditions, including standard FEM
+    and correction methods (additive and multiplicative).
+    """ 
     def _define_fem_system(self,params,u,v,V_solve):
         boundary = "on_boundary"
         r,Pe = params
@@ -200,4 +169,8 @@ class Elliptic1DDirFEMSolver(FEMSolver):
         return A,L
 
 class Elliptic1DDirLineFEMSolver(Elliptic1DDirFEMSolver,LineFEMSolver):
+    """FEM solver for the general elliptic system and convection-dominated regime with Dirichlet boundary conditions on a line.
+    
+    This class combines the Elliptic1DDirFEMSolver and LineFEMSolver to solve the general elliptic system and convection-dominated regime with Dirichlet boundary conditions on a line.
+    """
     pass

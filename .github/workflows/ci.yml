@@ -1,62 +1,62 @@
-name: Deploy Documentation
+# name: Deploy Documentation
 
-on:
-  push:
-    branches:
-      - main  # Déclenche le workflow lors d'un push vers la branche `main`
+# on:
+#   push:
+#     branches:
+#       - main  # Déclenche le workflow lors d'un push vers la branche `main`
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Check out repository
+#         uses: actions/checkout@v3
 
-      # Installer Miniconda
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          environment-file: environment.yml
-          activate-environment: fenicsproject
+#       # Installer Miniconda
+#       - name: Set up Miniconda
+#         uses: conda-incubator/setup-miniconda@v3
+#         with:
+#           environment-file: environment.yml
+#           activate-environment: fenicsproject
 
-      # Créer un environnement Conda et l'activer
-      - name: Install FEniCS
-        run: |
-          conda install -c conda-forge fenics
+#       # Créer un environnement Conda et l'activer
+#       - name: Install FEniCS
+#         run: |
+#           conda install -c conda-forge fenics
 
-      - name: Vérifier l'environnement actif
-        run: |
-          which python
-          python -c "import sys; print(sys.executable)"
+#       - name: Vérifier l'environnement actif
+#         run: |
+#           which python
+#           python -c "import sys; print(sys.executable)"
 
-      # Vérifier l'installation de FEniCS
-      - name: Vérifier l'installation de FEniCS
-        run: |
-          python -c "import dolfin; print(dolfin.__version__)"
+#       # Vérifier l'installation de FEniCS
+#       - name: Vérifier l'installation de FEniCS
+#         run: |
+#           python -c "import dolfin; print(dolfin.__version__)"
 
-      # Installer les dépendances Python supplémentaires
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+#       # Installer les dépendances Python supplémentaires
+#       - name: Install dependencies
+#         run: |
+#           pip install --upgrade pip
+#           pip install -r requirements.txt
 
-      # Installer les modules du projet
-      - name: Install project modules
-        run: |
-          pip install -e .
+#       # Installer les modules du projet
+#       - name: Install project modules
+#         run: |
+#           pip install -e .
 
-      # Construire la documentation Sphinx
-      - name: Build Sphinx documentation
-        working-directory: docs/sphinx
-        run: |
-          make html  # Générer la documentation
+#       # Construire la documentation Sphinx
+#       - name: Build Sphinx documentation
+#         working-directory: docs/sphinx
+#         run: |
+#           make html  # Générer la documentation
 
-      # Déployer la documentation sur GitHub Pages
-      - name: Deploy sphinx 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          target-folder: build_sphinx
-          folder: docs/sphinx/_build/html
+#       # Déployer la documentation sur GitHub Pages
+#       - name: Deploy sphinx 🚀
+#         uses: JamesIves/github-pages-deploy-action@v4.3.3
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           branch: gh-pages
+#           target-folder: build_sphinx
+#           folder: docs/sphinx/_build/html

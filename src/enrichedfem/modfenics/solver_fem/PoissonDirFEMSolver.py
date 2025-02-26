@@ -29,7 +29,13 @@ current = Path(__file__).parent.parent
 
 from enrichedfem.modfenics.solver_fem.GeometryFEMSolver import LineFEMSolver,SquareFEMSolver,DonutFEMSolver #,CubeFEMSolver
 
-class PoissonDirFEMSolver(FEMSolver):    
+class PoissonDirFEMSolver(FEMSolver): 
+    """FEM solver for the Poisson problem with Dirichlet boundary conditions.
+
+    This class defines the variational formulation and assembles the system for
+    the Poisson equation with Dirichlet boundary conditions, including standard FEM
+    and correction methods (additive and multiplicative).
+    """
     def _define_fem_system(self,params,u,v,V_solve):
         boundary = "on_boundary"
         if isinstance(self.pb_considered.geometry, (Square,Line)):
@@ -115,14 +121,26 @@ class PoissonDirFEMSolver(FEMSolver):
         return A,L
     
 class PoissonDirLineFEMSolver(PoissonDirFEMSolver,LineFEMSolver):
+    """FEM solver for the Poisson equation with Dirichlet boundary conditions on a line segment.
+
+    This class combines the PoissonDirFEMSolver and LineFEMSolver to solve the Poisson equation
+    with Dirichlet boundary conditions on a 1D line segment.
+    """
     pass
 
 class PoissonDirSquareFEMSolver(PoissonDirFEMSolver,SquareFEMSolver):
+    """FEM solver for the Poisson equation with Dirichlet boundary conditions on a square.
+
+    This class combines the PoissonDirFEMSolver and SquareFEMSolver to solve the Poisson equation
+    with Dirichlet boundary conditions on a 2D square domain.
+    """
     pass
 
 class PoissonDirDonutFEMSolver(PoissonDirFEMSolver,DonutFEMSolver):
-    pass
+    """FEM solver for the Poisson equation with Dirichlet boundary conditions on a donut.
 
-# class PoissonDirCubeFEMSolver(PoissonDirFEMSolver,CubeFEMSolver):
-#     pass
+    This class combines the PoissonDirFEMSolver and DonutFEMSolver to solve the Poisson equation
+    with Dirichlet boundary conditions on a 2D donut-shaped domain.
+    """
+    pass
 

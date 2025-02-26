@@ -1,2 +1,3 @@
 _build/
 enrichedfem.egg-info/
+__pycache__/

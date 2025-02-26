@@ -12,6 +12,17 @@ Subpackages
    modfenics.gains
    modfenics.solver_fem
 
+Submodules
+----------
+
+modfenics.utils module
+----------------------
+
+.. automodule:: modfenics.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

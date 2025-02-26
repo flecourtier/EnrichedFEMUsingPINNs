@@ -28,22 +28,6 @@ modfenics.solver\_fem.GeometryFEMSolver module
    :undoc-members:
    :show-inheritance:
 
-modfenics.solver\_fem.NonLinearFEMSolver module
------------------------------------------------
-
-.. automodule:: modfenics.solver_fem.NonLinearFEMSolver
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-modfenics.solver\_fem.NonLinearPoissonDirFEMSolver module
----------------------------------------------------------
-
-.. automodule:: modfenics.solver_fem.NonLinearPoissonDirFEMSolver
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 modfenics.solver\_fem.PoissonDirFEMSolver module
 ------------------------------------------------
 
@@ -52,10 +36,10 @@ modfenics.solver\_fem.PoissonDirFEMSolver module
    :undoc-members:
    :show-inheritance:
 
-modfenics.solver\_fem.PoissonMixteFEMSolver module
+modfenics.solver\_fem.PoissonMixedFEMSolver module
 --------------------------------------------------
 
-.. automodule:: modfenics.solver_fem.PoissonMixteFEMSolver
+.. automodule:: modfenics.solver_fem.PoissonMixedFEMSolver
    :members:
    :undoc-members:
    :show-inheritance:

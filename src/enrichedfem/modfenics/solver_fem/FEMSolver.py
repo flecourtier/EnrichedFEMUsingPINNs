@@ -1,6 +1,7 @@
 print_time = False
 relative_error = True
 compute_H1norm = False
+
 ###########
 # Imports #
 ###########
@@ -38,22 +39,32 @@ current = Path(__file__).parent.parent
 #######
 
 class FEMSolver(abc.ABC):
-    """Handles the FEM computations.
+    """Initialize the FEM solver.
 
     This class sets up the FEM domain, solves the FEM system,
     and computes the error between the FEM solution and the
     analytical or reference solution.  It also includes the
     enriched FEM methods (correction with addition and multiplication).
+    If needed, it can compute the reference solution and save it.
+
+    Args:
+        params (list): Sample of sets of parameters.
+        problem (Problem): Problem considered.
+        degree (int, optional): Degree of the finite element space. Defaults to 1.
+        error_degree (int, optional): Degree of the error space. Defaults to 4.
+        high_degree (int, optional): Degree of the expression space for f. Defaults to 9.
+        save_uref (str, optional): Directory to save reference solution. Defaults to None.
+        load_uref (bool, optional): Load flag for reference solution. Defaults to True.
     """
     def __init__(self,params,problem,degree=1,error_degree=4,high_degree=9,save_uref=None,load_uref=True):
         self.N = None # number of cells
-        self.params = params # list of parameters
+        self.params = params # list of 1 set of parameters
         self.pb_considered = problem # problem considered
         self.degree = degree # degree of the finite element space
         self.error_degree = error_degree # degree of the error space
         self.high_degree = high_degree # degree of the expression space for f
         self.save_uref = save_uref # directory to save results
-        self.tab_uref = None
+        self.tab_uref = None # reference solution
         
         # To evaluate computational time
         self.times_fem = {}
@@ -84,21 +95,90 @@ class FEMSolver(abc.ABC):
             
     @abc.abstractmethod
     def _create_mesh(self,nb_vert):
+        """Create the mesh.
+
+        This method creates the mesh with the given number of vertices.
+        For non-rectangular domains, we consider a box containing the domain.
+
+        Args:
+            nb_vert (int): Number of vertices.
+
+        Returns:
+            tuple: Mesh and computational time.
+        """
         pass    
 
     @abc.abstractmethod
     def _define_fem_system(self,params,u,v,V_solve):
+        """Define the FEM system.
+
+        This method defines the FEM system for the given parameters,
+        trial function, test function, and function space.
+
+        Args:
+            params (list): List of parameters.
+            u (TrialFunction): Trial function.
+            v (TestFunction): Test function.
+            V_solve (FunctionSpace): Function space.
+
+        Returns:
+            tuple: Bilinear and linear forms.
+        """
         pass
     
     @abc.abstractmethod
-    def _define_corr_add_system(self,params,u,v,u_PINNs,V_solve):
+    def _define_corr_add_system(self, params, u, v, u_PINNs, V_solve):
+        """Define the additive correction system.
+
+        This method defines the additive correction system for the given parameters,
+        trial function, test function, PINNs solution, and function space.
+
+        Args:
+            params (list): List of parameters.
+            u (TrialFunction): Trial function.
+            v (TestFunction): Test function.
+            u_PINNs (Function): PINNs solution.
+            V_solve (FunctionSpace): Function space.
+
+        Returns:
+            tuple: Bilinear and linear forms.
+        """
         pass
     
     @abc.abstractmethod
-    def _define_corr_mult_system(self,params,u,v,u_PINNs,V_solve,M,impose_bc):
+    def _define_corr_mult_system(self, params, u, v, u_PINNs, V_solve, M, impose_bc):
+        """Define the multiplicative correction system.
+
+        This method defines the multiplicative correction system for the given parameters,
+        trial function, test function, PINNs solution, function space,
+        lifting constant, and boundary condition flag (weak or strong).
+
+        Args:
+            params (list): List of parameters.
+            u (TrialFunction): Trial function.
+            v (TestFunction): Test function.
+            u_PINNs (Function): PINNs solution.
+            V_solve (FunctionSpace): Function space.
+            M (float): Lifting constant.
+            impose_bc (bool): Boundary condition flag. If True, strong BC. If False, weak BC.
+
+        Returns:
+            tuple: Bilinear and linear forms.
+        """
         pass
     
-    def set_meshsize(self,nb_cell,plot_mesh=False,filename=None):
+    def set_meshsize(self, nb_cell, plot_mesh=False, filename=None):
+        """Set the mesh size.
+
+        This method sets the mesh size with the given number of cells
+        and creates the associated finite element space.
+        It also plots the mesh if plot_mesh is True or saves the plot if filename is not None.
+
+        Args:
+            nb_cell (int): Number of cells.
+            plot_mesh (bool, optional): Plot the mesh. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+        """
         self.N = nb_cell # number of cells
         
         self.times_fem[self.N] = {}
@@ -118,7 +198,15 @@ class FEMSolver(abc.ABC):
             assert self.pb_considered.dim in [1,2] # to modify for 2D
             self.__plot_mesh(plot_mesh, filename)
         
-    def __plot_mesh(self,plot_mesh=False,filename=None):
+    def __plot_mesh(self, plot_mesh=False, filename=None):
+        """Plot the mesh.
+
+        This method plots the mesh and saves it to a file if a filename is provided.
+
+        Args:
+            plot_mesh (bool, optional): Plot the mesh. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+        """
         plt.figure()
         df.plot(self.mesh)
         plt.suptitle("Mesh with nb_vert="+str(self.N+1))
@@ -132,7 +220,19 @@ class FEMSolver(abc.ABC):
         plt.close()
         
         
-    def _create_FEM_domain(self,nb_vert,degree,save_times=False):        
+    def _create_FEM_domain(self, nb_vert, degree, save_times=False):
+        """Create the FEM domain.
+
+        This method creates the FEM domain with the given number of vertices and degree.
+
+        Args:
+            nb_vert (int): Number of vertices.
+            degree (int): Degree of the finite element space.
+            save_times (bool, optional): Save computational times. Defaults to False.
+
+        Returns:
+            tuple: Mesh, function space, and integration measure.
+        """   
         # Construct a cartesian mesh with nb_vert-1 cells in each direction
         mesh,tps = self._create_mesh(nb_vert)
 
@@ -148,7 +248,17 @@ class FEMSolver(abc.ABC):
 
         return mesh, V, dx
     
-    def run_uref(self,i):
+    def run_uref(self, i):
+        """Compute the reference solution.
+
+        This method computes the reference solution for the given parameter index.
+
+        Args:
+            i (int): Parameter index.
+
+        Returns:
+            Function: Reference solution.
+        """
         assert not self.pb_considered.ana_sol
         params = self.params[i]
         
@@ -164,7 +274,19 @@ class FEMSolver(abc.ABC):
 
         return sol
     
-    def get_uref(self, i):       
+    def get_uref(self, i):
+        """Get the reference solution.
+
+        This method gets the reference solution for the given parameter index.
+        It loads the solution from a file if it exists and load_uref is True,
+        otherwise it computes the solution and saves it to a file.
+
+        Args:
+            i (int): Parameter index.
+
+        Returns:
+            Function: Reference solution interpolated on V_ex.
+        """       
         filename = self.save_uref[i]
         
         if not self.load_uref or not os.path.exists(filename):
@@ -182,7 +304,19 @@ class FEMSolver(abc.ABC):
         
         return u_ref_Vex
     
-    def _plot_results_fem(self, u_ex_V, sol_V, V_solve, norme_L2 = None, plot_result=False, filename=None):
+    def _plot_results_fem(self, u_ex_V, sol_V, V_solve, plot_result=False, filename=None):
+        """Plot the FEM results.
+
+        This method plots the FEM solution, the analytical solution, and the error.
+        It also saves the plots to a file if a filename is provided.
+
+        Args:
+            u_ex_V (Function): Analytical solution.
+            sol_V (Function): FEM solution.
+            V_solve (FunctionSpace): Function space.
+            plot_result (bool, optional): Plot the results. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+        """
         assert self.pb_considered.dim in [1,2]
         # Définir les tailles pour les titres et les légendes
         title_size = 24  # Taille des titres
@@ -231,12 +365,7 @@ class FEMSolver(abc.ABC):
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
             plt.title(r"\begin{center}Error \\ $|u-u_h|$ \end{center}",fontsize=title_size, pad=40)
             
-        # if norme_L2 is not None:
-        #     # write error in scientific notation
-        #     plt.suptitle("L2 norm of the error : {:.2e}".format(norme_L2))
-            
         if filename is not None:
-            # plt.savefig(filename,dpi=1000)
             plt.tight_layout()
             plt.gca().set_rasterization_zorder(-1)
             plt.savefig(filename,bbox_inches='tight',format="pdf")
@@ -247,6 +376,20 @@ class FEMSolver(abc.ABC):
         plt.close()
         
     def fem(self, i, plot_result=False, filename=None):
+        """Solve the problem using the finite element method.
+
+        This method solves the problem for the given parameter index using the finite element method.
+        It computes the solution, the error, and optionally plots the results.
+
+        Args:
+            i (int): Parameter index.
+            plot_result (bool, optional): Plot the results. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+
+        Returns:
+            tuple: FEM solution and L2 norm of the error.
+        """
+        
         assert self.N is not None
         params = self.params[i]
         
@@ -289,28 +432,7 @@ class FEMSolver(abc.ABC):
             if compute_H1norm:
                 relH1 = df.norm(uex_Vex, norm_type='H1')
                 norme_H1 = norme_H1 / relH1
-                print("norme_H1 (rel) = ",norme_H1)
-            
-        import csv
-        fichier_csv = "output.csv"
-        
-        XXYY = self.V_ex.tabulate_dof_coordinates()
-        tab_x,tab_y = XXYY[:,0],XXYY[:,1]
-        tab_u = uex_Vex.vector()[:]
-        tab_val = sol_Vex.vector()[:]
-
-        # Sauvegarde des données au format CSV
-        with open(fichier_csv, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            # Écrire l'en-tête (optionnel)
-            writer.writerow(["x", "y", "u", "u_h"])
-            # Écrire les données ligne par ligne
-            for x, y, u, u_h in zip(tab_x, tab_y, tab_u, tab_val):
-                writer.writerow([x, y, u, u_h])
-
-        print(f"Les données ont été sauvegardées dans le fichier {fichier_csv}")
-
-            
+                print("norme_H1 (rel) = ",norme_H1)            
         end = time.time()
         
         if print_time:
@@ -330,6 +452,22 @@ class FEMSolver(abc.ABC):
         return sol,norme_L2
     
     def _plot_results_corr(self, u_ex_V, C_ex_V, C_tild_V, sol_V, V_solve, type, plot_result=False, filename=None, impose_bc=None):
+        """Plot the correction results.
+
+        This method plots the corrected solution, the analytical solution, the correction, and the errors.
+        It also saves the plots to a file if a filename is provided.
+
+        Args:
+            u_ex_V (Function): Analytical solution.
+            C_ex_V (Function): Analytical correction.
+            C_tild_V (Function): Computed correction.
+            sol_V (Function): Corrected solution.
+            V_solve (FunctionSpace): Function space.
+            type (str): Type of correction ("Add" or "Mult").
+            plot_result (bool, optional): Plot the results. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+            impose_bc (bool, optional): Whether boundary conditions are imposed strongly or weakly (for multiplicative correction). Defaults to None.
+        """
         assert self.pb_considered.dim in [1,2]
         assert type in ["Add","Mult"]
         if type == "Mult":
@@ -436,6 +574,19 @@ class FEMSolver(abc.ABC):
         plt.close()
 
     def pinns(self, i, u_PINNs):
+        """Compute the L2 norm of the error between the PINNs solution and the analytical solution.
+
+        This method computes the L2 norm of the error between the PINNs solution and the analytical solution
+        for the given parameter index.
+
+        Args:
+            i (int): Parameter index.
+            u_PINNs (Function): PINNs solution.
+
+        Returns:
+            float: L2 norm of the error.
+        """
+        
         assert self.N is not None
         params = self.params[i]
         
@@ -454,6 +605,21 @@ class FEMSolver(abc.ABC):
         return norme_L2
         
     def corr_add(self, i, u_PINNs, plot_result=False, filename=None):
+        """Solve the problem using the additive correction method.
+
+        This method solves the problem for the given parameter index using the additive correction method.
+        It computes the solution, the correction, the error, and optionally plots the results.
+
+        Args:
+            i (int): Parameter index.
+            u_PINNs (Function): PINNs solution.
+            plot_result (bool, optional): Plot the results. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+
+        Returns:
+            tuple: Corrected solution, correction, and L2 norm of the error.
+        """
+        
         assert self.N is not None
         params = self.params[i]
         
@@ -494,7 +660,7 @@ class FEMSolver(abc.ABC):
         C_Vex = df.interpolate(C_tild,self.V_ex)
         sol_Vex = df.Function(self.V_ex)
         sol_Vex.vector()[:] = (C_Vex.vector()[:])+u_theta_Vex.vector()[:]
-              
+
         
         norme_L2 = (df.assemble((((uex_Vex - sol_Vex)) ** 2) * self.dx) ** (0.5)) 
         if relative_error:
@@ -519,42 +685,30 @@ class FEMSolver(abc.ABC):
                 u_ex_Vex = df.interpolate(u_ex,self.V_ex) 
             else:
                 u_ex_Vex = self.tab_uref[i]
-            # u_ex_Vex = df.interpolate(u_ex,self.V_ex)
             C_ex_Vex = df.Function(self.V_ex)
             C_ex_Vex.vector()[:] = u_ex_Vex.vector()[:] - u_theta_Vex.vector()[:]
             self._plot_results_corr(u_ex_Vex,C_ex_Vex,C_Vex,sol_Vex,self.V_ex,type="Add",filename=filename)
-            
-            
-        import csv
-        # Noms des fichiers
-        input_file = "output.csv"  # Fichier CSV existant
-        output_file = "output_updated.csv"  # Nouveau fichier avec la colonne ajoutée
-
-        tab_uhplus = sol_Vex.vector()[:]
-        tab_phplusex = C_ex_Vex.vector()[:]
-        tab_phplus = C_Vex.vector()[:]
-
-        # Lire le fichier existant et écrire le nouveau avec la colonne ajoutée
-        with open(input_file, mode='r', newline='') as infile, open(output_file, mode='w', newline='') as outfile:
-            reader = csv.reader(infile)
-            writer = csv.writer(outfile)
-
-            for i, row in enumerate(reader):
-                if i == 0:  # Modifier l'en-tête
-                    row.append("uhplus")  # Ajouter le nom de la nouvelle colonne
-                    row.append("phplusex")
-                    row.append("phplus")
-                else:  # Ajouter les nouvelles valeurs aux lignes suivantes
-                    row.append(tab_uhplus[i - 1])  # Index -1 car la première ligne est l'en-tête
-                    row.append(tab_phplusex[i - 1])
-                    row.append(tab_phplus[i - 1])
-                writer.writerow(row)
-
-        print(f"La nouvelle colonne a été ajoutée dans le fichier {output_file}")
         
         return sol,C_tild,norme_L2
 
     def corr_mult(self, i, u_PINNs, M=0.0, impose_bc=True, plot_result=False, filename=None):
+        """Solve the problem using the multiplicative correction method.
+
+        This method solves the problem for the given parameter index using the multiplicative correction method.
+        It computes the solution, the correction, the error, and optionally plots the results.
+
+        Args:
+            i (int): Parameter index.
+            u_PINNs (Function): PINNs solution.
+            M (float, optional): Lifting constant. Defaults to 0.0.
+            impose_bc (bool, optional): Whether boundary conditions are imposed strongly or weakly. Defaults to True.
+            plot_result (bool, optional): Plot the results. Defaults to False.
+            filename (str, optional): Filename to save the plot. Defaults to None.
+
+        Returns:
+            tuple: Corrected solution, correction, and L2 norm of the error.
+        """
+        
         assert self.N is not None
         params = self.params[i]
         self.times_corr_mult[self.N][str(M)] = {}
@@ -578,8 +732,6 @@ class FEMSolver(abc.ABC):
         
         sol = df.Function(self.V)
         u_theta_V = get_utheta_fenics_onV(self.V,self.params[i],u_PINNs)      
-        # u_theta_M_V = df.Function(self.V)
-        # u_theta_M_V.vector()[:] = u_theta_V.vector()[:] + M
         sol.vector()[:] = C_tild.vector()[:] * (u_theta_V.vector()[:] + M) - M
         end = time.time()
 

@@ -11,7 +11,11 @@ import time
 ###############
 
 class LineFEMSolver(FEMSolver):
-    def _create_mesh(self,nb_vert):
+    """Create a 1D mesh for a line segment.
+
+    This subclass of the FEMSolver creates a 1D mesh of the line segment defined by the problem's geometry.
+    """   
+    def _create_mesh(self, nb_vert):     
         # check if pb_considered is instance of Line class
         assert isinstance(self.pb_considered.geometry, Line)
         
@@ -26,8 +30,12 @@ class LineFEMSolver(FEMSolver):
 # Geometry 2D #
 ###############
 
-class SquareFEMSolver(FEMSolver):    
-    def _create_mesh(self,nb_vert):
+class SquareFEMSolver(FEMSolver):
+    """Create a 2D mesh for a square domain.
+
+    This subclass of the FEMSolver creates a rectangular mesh for the square domain defined by the problem's geometry.
+    """
+    def _create_mesh(self, nb_vert):
         # check if pb_considered is instance of Square class
         assert isinstance(self.pb_considered.geometry, Square)
         
@@ -40,7 +48,24 @@ class SquareFEMSolver(FEMSolver):
 
 # For more complicate geometry, we iterate to find the good caracteristic size of the mesh        
 class ComplexFEMSolver(FEMSolver):
+    """Generate mesh for complex 2D geometries.
+
+    This subclass of FEMSolver provides a method to generate meshes for complex 2D geometries
+    using mshr, ensuring the mesh resolution is appropriate.
+    """
     def _generate_mesh_given_size(self, domain, nb_vert):
+        """Generate a mesh with a given characteristic size.
+
+        This method generates a mesh for the given domain and number of vertices,
+        iteratively refining until the mesh size is appropriate.
+
+        Args:
+            domain (mshr.Domain): The domain to mesh.
+            nb_vert (int): Number of vertices for the rectangular mesh.
+
+        Returns:
+            tuple: Mesh and computational time.
+        """
         case_ex = nb_vert==self.N_ex+1
         self.H_start = self.pb_considered.geometry.H_start
         
@@ -66,7 +91,11 @@ class ComplexFEMSolver(FEMSolver):
         
         return mesh, end2-start2
     
-class CircleFEMSolver(ComplexFEMSolver):    
+class CircleFEMSolver(ComplexFEMSolver): 
+    """Create a 2D mesh for a circle domain.
+
+    This subclass of the ComplexFEMSolver creates a circluar mesh for the circle domain defined by the problem's geometry.
+    """   
     def _create_mesh(self,nb_vert):
         # check if pb_considered is instance of Square class
         assert isinstance(self.pb_considered.geometry, Circle)
@@ -84,7 +113,11 @@ class CircleFEMSolver(ComplexFEMSolver):
         return mesh, tps
 
 # For more complicate geometry, we iterate to find the good caracteristic size of the mesh        
-class DonutFEMSolver(ComplexFEMSolver):    
+class DonutFEMSolver(ComplexFEMSolver):   
+    """Create a 2D mesh for a annulus domain.
+
+    This subclass of the ComplexFEMSolver creates a mesh for the donut defined by the problem's geometry.
+    """    
     def _create_mesh(self,nb_vert):
         # check if pb_considered is instance of Donut class
         assert isinstance(self.pb_considered.geometry, Donut)
@@ -109,7 +142,11 @@ class DonutFEMSolver(ComplexFEMSolver):
 # Geometry 3D #
 ###############
 
-class CubeFEMSolver(FEMSolver):    
+class CubeFEMSolver(FEMSolver): 
+    """Create a 3D mesh for a cube domain.
+
+    This subclass of the ComplexFEMSolver creates a mesh for the cube domain defined by the problem's geometry.
+    """      
     def _create_mesh(self,nb_vert):
         # check if pb_considered is instance of Square class
         assert isinstance(self.pb_considered.geometry, Square)
