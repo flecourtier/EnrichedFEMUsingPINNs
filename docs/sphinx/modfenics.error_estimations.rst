@@ -20,14 +20,6 @@ modfenics.error\_estimations.error\_estimations module
    :undoc-members:
    :show-inheritance:
 
-modfenics.error\_estimations.gain\_constants module
----------------------------------------------------
-
-.. automodule:: modfenics.error_estimations.gain_constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 modfenics.error\_estimations.utils module
 -----------------------------------------
 
