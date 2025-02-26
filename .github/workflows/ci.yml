@@ -33,4 +33,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages # The branch the action should deploy to.
           target-folder: build_sphinx
-          folder: docs/sphinx/_build/html
+          folder: docs/sphinx/

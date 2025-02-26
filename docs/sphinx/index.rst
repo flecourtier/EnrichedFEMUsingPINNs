@@ -9,8 +9,9 @@ Welcome to EnrichedFEM's documentation!
 .. toctree::
    :maxdepth: 5
    :caption: Contents:
-      enrichedfem.modfenics
-      enrichedfem.testcases
+   
+   modfenics
+   testcases
 
 
 Indices and tables
