@@ -21,9 +21,14 @@ jobs:
           activate-environment: fenicsproject
 
       # Créer un environnement Conda et l'activer
-      - name: Install FEniCS and activate Conda environment
+      - name: Install FEniCS
         run: |
           conda install -c conda-forge fenics
+
+      - name: Vérifier l'environnement actif
+        run: |
+          which python
+          python -c "import sys; print(sys.executable)"
 
       # Vérifier l'installation de FEniCS
       - name: Vérifier l'installation de FEniCS
