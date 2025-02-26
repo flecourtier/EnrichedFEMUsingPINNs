@@ -36,18 +36,10 @@ modfenics.solver\_fem.PoissonDirFEMSolver module
    :undoc-members:
    :show-inheritance:
 
-modfenics.solver\_fem.PoissonMixedFEMSolver module
+modfenics.solver\_fem.PoissonMixteFEMSolver module
 --------------------------------------------------
 
-.. automodule:: modfenics.solver_fem.PoissonMixedFEMSolver
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-modfenics.solver\_fem.PoissonModNeuFEMSolver module
----------------------------------------------------
-
-.. automodule:: modfenics.solver_fem.PoissonModNeuFEMSolver
+.. automodule:: modfenics.solver_fem.PoissonMixteFEMSolver
    :members:
    :undoc-members:
    :show-inheritance:
