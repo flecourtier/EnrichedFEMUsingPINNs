@@ -10,9 +10,13 @@ Welcome to EnrichedFEM's documentation!
    :maxdepth: 5
    :caption: Contents:
    
-   modfenics
-   testcases
-
+   enrichedfem.error_estimations
+   enrichedfem.fenics_expressions
+   enrichedfem.gains
+   enrichedfem.geometry
+   enrichedfem.networks
+   enrichedfem.problem
+   enrichedfem.solver_fem
 
 Indices and tables
 ==================

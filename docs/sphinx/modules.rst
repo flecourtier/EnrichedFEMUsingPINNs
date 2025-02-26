@@ -1,7 +1,7 @@
-modfenics
-=========
+enrichedfem
+===========
 
 .. toctree::
    :maxdepth: 4
 
-   modfenics
+   enrichedfem
