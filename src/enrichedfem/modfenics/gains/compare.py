@@ -5,18 +5,32 @@ import dataframe_image as dfi
 from enrichedfem.modfenics.gains.gains import GainsEnhancedFEM
 
 class CompareGainsMethods:
+    """Compare gains of enhanced FEM methods.
+
+    This class compares the gains achieved by enhanced FEM methods (additive
+    and multiplicative corrections) over standard FEM and PINNs. It reads
+    error data from CSV files, computes gains, creates dataframes for errors
+    and gains, and saves statistics about the gains.
+
+    Args:
+        gains_enhanced_fem (GainsEnhancedFEM): An instance of the
+            `GainsEnhancedFEM` class, containing the error data.
+    """
     def __init__(self,gains_enhanced_fem:GainsEnhancedFEM):
         self.gef = gains_enhanced_fem
         self.params_str = self.create_params_str()
-        liste_de_listes = [list(map(float, element.split(','))) for element in self.params_str]
-
-        # max_par_coeff = [max(valeurs) for valeurs in zip(*liste_de_listes)]
-        # print("max :",max_par_coeff)
-        # min_par_coeff = [min(valeurs) for valeurs in zip(*liste_de_listes)]
-        # print("min :",min_par_coeff)
         self.__row_names = [str(i) + " : " + self.params_str[i] for i in range(self.gef.n_params)]
         
     def create_params_str(self):
+        """Create string representations of parameter sets.
+
+        This method generates a list of strings, where each string represents
+        a set of parameters used in the problem. The parameters are rounded
+        to two decimal places and separated by commas within each string.
+
+        Returns:
+            list: A list of strings, each representing a parameter set.
+        """
         dim_params = len(self.gef.params[0])
         params_str = []
         for i in range(self.gef.n_params):
@@ -29,7 +43,25 @@ class CompareGainsMethods:
         return params_str
 
     
-    def __read_errors(self,degree,tab_M=None):            
+    def __read_errors(self, degree, tab_M=None):
+        """Read error data for different methods.
+
+        This method reads error data from CSV files for FEM, PINNs, additive
+        correction ("Corr"), and multiplicative correction ("Mult") methods
+        for a given degree and a list of M values. It raises
+        FileNotFoundError if any of the required files are not found.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing a dictionary of error arrays for each
+                method and a list of mesh sizes (h).
+
+        Raises:
+            FileNotFoundError: If any of the required error files are not found.
+        """            
         tab_nb_vert = self.gef.tab_nb_vert
         
         # Read date for all methods
@@ -86,7 +118,22 @@ class CompareGainsMethods:
         
         return tab_errors,tab_h
 
-    def create_dferrors_deg_allM(self,degree,tab_M=None):
+    def create_dferrors_deg_allM(self, degree, tab_M=None):
+        """Create a DataFrame of errors for a given degree and all M values.
+
+        This method reads error data for different methods (FEM, PINNs,
+        Corr, Mult, Mult_weak) from CSV files, and constructs a pandas
+        DataFrame where each row represents a parameter sample and each
+        column represents a method, mesh size, and mesh size (h). The DataFrame
+        is then saved to a CSV file.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns:
+            pandas.DataFrame: The DataFrame of errors.
+        """
         tab_nb_vert = self.gef.tab_nb_vert
         size = len(tab_nb_vert)
         
@@ -137,7 +184,23 @@ class CompareGainsMethods:
     
         return df_errors
     
-    def __compute_gains(self,df_errors):
+    def __compute_gains(self, df_errors):
+        """Compute gains of enhanced methods over FEM and PINNs.
+
+        This method computes the gains of additive ("Corr") and multiplicative
+        ("Mult") correction methods over standard FEM and PINNs, based on
+        the errors provided in the input DataFrame.
+
+        Args:
+            df_errors (pandas.DataFrame): A DataFrame containing the errors
+                for each method, with "method" as a level in the columns
+                MultiIndex.
+
+        Returns:
+            tuple: A tuple containing two dictionaries: `tab_gains_overFEM`
+                with gains over FEM, and `tab_gains_overPINNs` with gains
+                over PINNs.
+        """
         tab_gains_overFEM = {}
         tab_gains_overPINNs = {}
         for method in df_errors.columns.get_level_values("method").unique():
@@ -148,7 +211,23 @@ class CompareGainsMethods:
         
         return tab_gains_overFEM,tab_gains_overPINNs
     
-    def create_dataframes_deg_allM(self,degree,tab_M=None):
+    def create_dataframes_deg_allM(self, degree, tab_M=None):
+        """Create DataFrames of errors and gains for a given degree and all M values.
+
+        This method creates two pandas DataFrames: one for errors and one
+        for gains, for a given degree and all specified M values. The error
+        DataFrame contains the L2 errors for each method (FEM, PINNs, Corr,
+        Mult, Mult_weak), while the gains DataFrame contains the gains of
+        enhanced methods over FEM and PINNs. Both DataFrames are saved to
+        CSV files.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns:
+            pandas.DataFrame: The DataFrame of gains.
+        """
         # Create dataframe for errors
         df_errors = self.create_dferrors_deg_allM(degree,tab_M=tab_M)
         tab_methods = df_errors.columns.get_level_values("method").unique()
@@ -190,12 +269,37 @@ class CompareGainsMethods:
         
         return df_gains
         
-    def create_dataframes_alldeg_allM(self,tab_M=None):
+    def create_dataframes_alldeg_allM(self, tab_M=None):
+        """Create DataFrames of errors and gains for all degrees and all M values.
+
+        This method creates and saves DataFrames of errors and gains for all
+        degrees specified in `self.gef.tab_degree` and all specified M values.
+        It calls the `create_dataframes_deg_allM` method for each degree.
+
+        Args:
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns: None
+        """
         for degree in self.gef.tab_degree:
             self.create_dataframes_deg_allM(degree,tab_M=tab_M)
             
                 
-    def save_stats_deg_allM(self,degree,tab_M=None):
+    def save_stats_deg_allM(self, degree, tab_M=None):
+        """Save statistics of gains for a given degree and all M values.
+
+        This method computes and saves statistics (min, max, mean, std) of the
+        gains of enhanced methods (Corr, Mult, Mult_weak) over FEM and PINNs
+        for a given degree and all specified M values. The statistics are
+        saved as a CSV file and a PNG image.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns:
+            pandas.DataFrame: The DataFrame containing the rounded statistics.
+        """
         df_errors = self.create_dferrors_deg_allM(degree,tab_M=tab_M)
         tab_gains_overFEM,tab_gains_overPINNs = self.__compute_gains(df_errors)
         tab_nb_vert = self.gef.tab_nb_vert   
@@ -260,6 +364,18 @@ class CompareGainsMethods:
         
         return df_stats_round
     
-    def save_stats_alldeg_allM(self,tab_M=None):
+    def save_stats_alldeg_allM(self, tab_M=None):
+        """Save statistics of gains for all degrees and all M values.
+
+        This method computes and saves statistics (min, max, mean, std) of
+        the gains of enhanced methods over FEM and PINNs for all degrees
+        specified in `self.gef.tab_degree` and all specified M values. It
+        calls the `save_stats_deg_allM` method for each degree.
+
+        Args:
+            tab_M (list, optional): A list of M values to consider for the "Mult" methods. Defaults to None.
+
+        Returns: None
+        """
         for degree in self.gef.tab_degree:
             self.save_stats_deg_allM(degree,tab_M=tab_M)
