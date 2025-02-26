@@ -23,7 +23,7 @@ jobs:
       - name: Install FEniCS and activate Conda environment
         run: |
           conda create -n fenicsproject -c conda-forge fenics
-          source activate fenicsproject
+          conda activate fenicsproject
 
       # Vérifier l'installation de FEniCS
       - name: Vérifier l'installation de FEniCS
