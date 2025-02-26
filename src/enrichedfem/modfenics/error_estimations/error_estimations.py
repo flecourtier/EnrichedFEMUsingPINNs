@@ -7,14 +7,23 @@ from enrichedfem.testcases.utils import create_tree,select_param,compute_slope
 from enrichedfem.modfenics.error_estimations.utils import get_solver_type
 
 class ErrorEstimations:
-    """Class to run error estimations for a given problem and a given parameter.
+    """Error estimates class for the FEM method and enriched approaches.
+
+    This class allows to run the error estimates for the FEM method and enriched approaches (additive and multiplicative corrections). The L2 error is computed for different degrees and number of vertices.
+    The results are saved in csv files and can be plotted.
+
+    Args:
+        param_num (int): Number of the parameter to consider
+        pb_considered (Problem): Problem to consider        
+        error_degree (int, optional): Degree of the error space. Defaults to 4.
+        high_degree (int, optional): Degree of the expression space for f. Defaults to 9.
+        save_fig (bool, optional): Save flag for the figures. Defaults to False.
+        plot_result (bool, optional): Plot flag for the results. Defaults to False.
+        plot_mesh (bool, optional): Plot flag for the mesh. Defaults to False.
+        tab_nb_vert (list, optional): List of the number of vertices. Defaults to [2**i for i in range(4,9)].
+        tab_degree (list, optional): List of the degrees. Defaults to [1,2,3].
     """
     def __init__(self, param_num, pb_considered, **kwargs):
-        """Constructor of the class ErrorEstimations.
-
-        :param param_num: Number of the parameter to consider
-        :param pb_considered: Problem to consider
-        """
         # define the problem
         self.param_num = param_num
         self.pb_considered = pb_considered
@@ -28,8 +37,8 @@ class ErrorEstimations:
         print(f"## Results directory: {self.results_dir}")
         
         # define the degrees and the number of vertices
-        self.high_degree = kwargs.get('high_degree', 10)
         self.error_degree = kwargs.get('error_degree', 4)
+        self.high_degree = kwargs.get('high_degree', 10)
         self.save_fig = kwargs.get('save_fig', False)
         self.plot_result = kwargs.get('plot_result', False)
         self.plot_mesh = kwargs.get('plot_mesh', False)
@@ -46,6 +55,12 @@ class ErrorEstimations:
             
         
     def __infos_from_problem(self):
+        """Extract problem information.
+
+        This method extracts information about the problem, such as dimension,
+        testcase, version, parameters, and solver type, from the
+        `pb_considered` attribute and stores them as attributes of the class.
+        """
         self.dim = self.pb_considered.dim
         self.testcase = self.pb_considered.testcase
         self.version = self.pb_considered.version
@@ -53,6 +68,11 @@ class ErrorEstimations:
         self.solver_type = get_solver_type(self.dim,self.testcase,self.version)
     
     def read_csv(self,csv_file):
+        """Read a CSV file.
+
+        :param csv_file: CSV file to read
+        :return: DataFrame, list of h values, list of error values
+        """
         df_meth = pd.read_csv(csv_file)
         tab_h_meth = list(df_meth['h'].values)
         tab_err_meth = list(df_meth['err'].values)
@@ -62,7 +82,26 @@ class ErrorEstimations:
         
         return df_meth, tab_h_meth, tab_err_meth
     
-    def run_error_estimations_deg(self,method,degree,**kwargs):
+    def run_error_estimations_deg(self, method, degree, **kwargs):
+        """Run error estimates for a given method and degree.
+
+        This method performs error estimates using the specified method
+        (FEM, Corr, or Mult) for a given degree. It reads results from a CSV
+        file if available, otherwise it runs the error estimation and saves
+        the results to a CSV file.
+
+        Args:
+            method (str): The error estimation method ("FEM", "Corr", or "Mult").
+            degree (int): The degree of the finite element solution.
+            new_run (bool): Whether to force a new run even if a CSV file exists.
+            u_theta: Network prediction. Required for "Corr" and "Mult" methods.
+            M (float): Lifting constant. Required for "Mult" method.
+            impose_bc (bool): Required for "Mult" method.
+
+        Returns:
+            tuple: A tuple containing the DataFrame, list of h values, and list
+                of error values.
+        """
         new_run = kwargs.get('new_run', False)
         assert method in ["FEM","Corr","Mult"], f"method={method} is not implemented"
         
@@ -131,7 +170,24 @@ class ErrorEstimations:
                 
         return df_method, tab_h_method, tab_err_method
     
-    def run_error_estimations_alldeg(self,method,**kwargs):
+    def run_error_estimations_alldeg(self, method, **kwargs):
+        """Run error estimates for a given method and all degrees.
+
+        This method runs the error estimates for the given method and all
+        degrees specified in `self.tab_degree`. It saves the results to a CSV
+        file and optionally plots the convergence results.
+
+        Args:
+            method (str): The error estimation method ("FEM", "Corr", or "Mult").
+            **kwargs: Additional keyword arguments. These may include:
+                plot_cvg (bool): Whether to plot the convergence results.
+                u_theta: Network prediction. Required for "Corr" and "Mult" methods.
+                M (float): Lifting constant. Required for "Mult" method.
+                impose_bc (bool): Required for "Mult" method.
+                new_run (bool): Whether to force a new run even if a CSV file exists.
+
+        Returns: None
+        """
         plot_cvg = kwargs.get('plot_cvg', False)
 
         if method == "Mult":
@@ -192,29 +248,146 @@ class ErrorEstimations:
             plt.show()
         
     
-    def run_fem_deg(self,degree,new_run=False):
+    def run_fem_deg(self, degree, new_run=False):
+        """Run FEM error estimates for a given degree.
+
+        This method runs the error estimates using the FEM method for a given
+        degree. It calls the `run_error_estimations_deg` method with the
+        specified parameters.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+
+        Returns:
+            tuple: A tuple containing the DataFrame, list of h values, and list
+                of error values.
+        """
         return self.run_error_estimations_deg("FEM",degree,new_run=new_run)
     
-    def run_corr_deg(self,degree,u_theta,new_run=False):
+    def run_corr_deg(self, degree, u_theta, new_run=False):
+        """Run additive correction error estimates for a given degree.
+
+        This method runs the error estimates using the additive correction
+        method ("Corr") for a given degree. It calls the
+        `run_error_estimations_deg` method with the specified parameters.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            u_theta: The predicted solution.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+
+        Returns:
+            tuple: A tuple containing the DataFrame, list of h values, and list
+                of error values.
+        """
         return self.run_error_estimations_deg("Corr",degree,u_theta=u_theta,new_run=new_run)
     
-    def run_mult_deg_M(self,degree,u_theta,M=0.0,impose_bc=True,new_run=False):
+    def run_mult_deg_M(self, degree, u_theta, M=0.0, impose_bc=True, new_run=False):
+        """Run multiplicative correction error estimates for a given degree and M value.
+
+        This method runs the error estimates using the multiplicative correction
+        method ("Mult") for a given degree and M value. It calls the
+        `run_error_estimations_deg` method with the specified parameters.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            u_theta: The predicted solution.
+            M (float, optional): Lifting constant. Defaults to 0.0.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+
+        Returns:
+            tuple: A tuple containing the DataFrame, list of h values, and list
+                of error values.
+        """
         return self.run_error_estimations_deg("Mult",degree,u_theta=u_theta,M=M,impose_bc=impose_bc,new_run=new_run)
     
     
-    def run_fem_alldeg(self,new_run=False,plot_cvg=False):
+    def run_fem_alldeg(self, new_run=False, plot_cvg=False):
+        """Run FEM error estimates for all degrees.
+
+        This method runs the error estimates using the FEM method for all
+        degrees specified in `self.tab_degree`. It calls the
+        `run_error_estimations_alldeg` method with the specified parameters.
+
+        Args:
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+            plot_cvg (bool, optional): Whether to plot the convergence results. Defaults to False.
+
+        Returns: None
+        """
         self.run_error_estimations_alldeg("FEM",new_run=new_run,plot_cvg=plot_cvg)
     
-    def run_corr_alldeg(self,u_theta,new_run=False,plot_cvg=False):
+    def run_corr_alldeg(self, u_theta, new_run=False, plot_cvg=False):
+        """Run additive correction error estimates for all degrees.
+
+        This method runs the error estimates using the additive correction
+        method ("Corr") for all degrees specified in `self.tab_degree`.
+        It calls the `run_error_estimations_alldeg` method with the
+        specified parameters.
+
+        Args:
+            u_theta: The predicted solution.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+            plot_cvg (bool, optional): Whether to plot the convergence results. Defaults to False.
+
+        Returns: None
+        """
         self.run_error_estimations_alldeg("Corr",u_theta=u_theta,new_run=new_run,plot_cvg=plot_cvg)
     
-    def run_mult_alldeg_M(self,u_theta,M=0.0,impose_bc=True,new_run=False,plot_cvg=False):
+    def run_mult_alldeg_M(self, u_theta, M=0.0, impose_bc=True, new_run=False, plot_cvg=False):
+        """Run multiplicative correction error estimates for all degrees and a given M value.
+
+        This method runs the error estimates using the multiplicative correction
+        method ("Mult") for all degrees specified in `self.tab_degree` and a
+        given M value. It calls the `run_error_estimations_alldeg` method
+        with the specified parameters.
+
+        Args:
+            u_theta: The predicted solution.
+            M (float, optional): Lifting constant. Defaults to 0.0.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+            plot_cvg (bool, optional): Whether to plot the convergence results. Defaults to False.
+
+        Returns: None
+        """
         self.run_error_estimations_alldeg("Mult",u_theta=u_theta,M=M,impose_bc=impose_bc,new_run=new_run,plot_cvg=plot_cvg)
         
-    def run_mult_deg_allM(self,degree,u_theta,tab_M,impose_bc=True,new_run=False):
+    def run_mult_deg_allM(self, degree, u_theta, tab_M, impose_bc=True, new_run=False):
+        """Run multiplicative correction error estimates for a given degree and multiple M values.
+
+        This method runs the error estimates using the multiplicative correction
+        method ("Mult") for a given degree and a range of M values.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            u_theta: The predicted solution.
+            tab_M (list): A list of M values to use in the multiplicative error estimation.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+
+        Returns: None
+        """
         for M in tab_M:
             self.run_mult_deg_M(degree,u_theta,M=M,impose_bc=impose_bc,new_run=new_run)
             
-    def run_mult_alldeg_allM(self,u_theta,tab_M,impose_bc=True,new_run=False,plot_cvg=False):
+    def run_mult_alldeg_allM(self, u_theta, tab_M, impose_bc=True, new_run=False, plot_cvg=False):
+        """Run multiplicative correction error estimates for all degrees and multiple M values.
+
+        This method runs the error estimates using the multiplicative correction
+        method ("Mult") for all degrees specified in `self.tab_degree` and a
+        range of M values.
+
+        Args:
+            u_theta: The predicted solution.
+            tab_M (list): A list of M values to use in the multiplicative error estimation.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+            new_run (bool, optional): Whether to force a new run even if a CSV file exists. Defaults to False.
+            plot_cvg (bool, optional): Whether to plot the convergence results. Defaults to False.
+
+        Returns: None
+        """
         for M in tab_M:
             self.run_mult_alldeg_M(u_theta,M=M,impose_bc=impose_bc,new_run=new_run,plot_cvg=plot_cvg)

@@ -2,7 +2,6 @@ from enrichedfem.modfenics.solver_fem.PoissonDirFEMSolver import PoissonDirSquar
 from enrichedfem.modfenics.solver_fem.EllipticDirFEMSolver import EllipticDirSquareFEMSolver,Elliptic1DDirLineFEMSolver
 from enrichedfem.modfenics.solver_fem.PoissonMixedFEMSolver import PoissonMixedDonutFEMSolver
 # from enrichedfem.modfenics.solver_fem.PoissonModNeuFEMSolver import PoissonModNeuDonutFEMSolver
-from enrichedfem.modfenics.solver_fem.NonLinearPoissonDirFEMSolver import NonLinearPoissonDirCircleFEMSolver
 
 def get_solver_type(dim,testcase,version):
     if dim==1:
@@ -21,8 +20,6 @@ def get_solver_type(dim,testcase,version):
             return PoissonDirDonutFEMSolver
         elif testcase == 5:
             return PoissonMixedDonutFEMSolver
-        elif testcase == 6:
-            return NonLinearPoissonDirCircleFEMSolver
         else:
             pass
     else:

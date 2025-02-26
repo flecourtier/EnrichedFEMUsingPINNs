@@ -7,6 +7,16 @@ import os
 from enrichedfem.modfenics.error_estimations.error_estimations import ErrorEstimations
 
 class CompareMethods:
+    """CompareMethods class.
+
+    This class provides methods for comparing different error estimation
+    methods (FEM, additive correction, multiplicative correction) and
+    visualizing the results.
+
+    Args:
+        error_estimations (ErrorEstimations): An instance of the
+            `ErrorEstimations` class.
+    """
     def __init__(self,error_estimations:ErrorEstimations):
         self.ee = error_estimations
         
@@ -14,7 +24,20 @@ class CompareMethods:
     # Plots #
     #########
 
-    def plot_method_vs_FEM_alldeg(self,method,**kwargs): 
+    def plot_method_vs_FEM_alldeg(self, method, **kwargs):
+        """Plot a comparison of a given method against the FEM for all degrees.
+
+        This method generates a log-log plot of the L2 error norm as a function
+        of the number of vertices for the given method and the FEM, for all
+        degrees specified in `self.ee.tab_degree`.
+
+        Args:
+            method (str): The error estimation method ("Corr" or "Mult").
+            M (float): Lifting constant. Required for "Mult" method.
+            impose_bc (bool): Whether to impose boundary conditions. Required for "Mult" method.
+
+        Returns: None
+        """ 
         assert method in ["Corr","Mult"], f"method={method} can't be compared with FEM"  
         if method == "Mult":
             assert 'M' in kwargs and 'impose_bc' in kwargs, f"M and impose_bc are required for {method}"
@@ -67,16 +90,55 @@ class CompareMethods:
         plt.show()
         
     def plot_Corr_vs_FEM_alldeg(self):
+        """Plot a comparison of the additive correction method against the FEM for all degrees.
+
+        This method calls `plot_method_vs_FEM_alldeg` with "Corr" as the method
+        argument, generating a log-log plot of the L2 error norm as a function
+        of the number of vertices for both methods.
+        """
         self.plot_method_vs_FEM_alldeg("Corr")
         
-    def plot_Mult_vs_FEM_alldeg_M(self,M=0.0,impose_bc=True):
+    def plot_Mult_vs_FEM_alldeg_M(self, M=0.0, impose_bc=True):
+        """Plot a comparison of the multiplicative correction method against the FEM for all degrees and a given M value.
+
+        This method calls `plot_method_vs_FEM_alldeg` with "Mult" as the method
+        argument and the specified M value and boundary condition flag,
+        generating a log-log plot of the L2 error norm as a function of the
+        number of vertices for both methods.
+
+        Args:
+            M (float, optional): Lifting constant. Defaults to 0.0.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+        """
         self.plot_method_vs_FEM_alldeg("Mult",M=M,impose_bc=impose_bc)
         
-    def plot_Mult_vs_FEM_alldeg_allM(self,tab_M,impose_bc=True):
+    def plot_Mult_vs_FEM_alldeg_allM(self, tab_M, impose_bc=True):
+        """Plot comparison of multiplicative correction against FEM for all degrees and M values.
+
+        This method iterates through a list of M values and calls the
+        `plot_Mult_vs_FEM_alldeg_M` method for each value, generating a series
+        of plots comparing the multiplicative correction method against the FEM
+        for all degrees.
+
+        Args:
+            tab_M (list): A list of M values to use in the multiplicative error estimation.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+        """
         for M in tab_M:
             self.plot_Mult_vs_FEM_alldeg_M(M=M,impose_bc=impose_bc)
 
-    def plot_Mult_vs_Add_vs_FEM_deg_allM(self,degree,tab_M):
+    def plot_Mult_vs_Add_vs_FEM_deg_allM(self, degree, tab_M):
+        """Plot a comparison of Mult, Add, and FEM for a given degree and all M values.
+
+        This method generates a log-log plot of the L2 error norm as a function
+        of the number of vertices for the FEM, additive correction ("Add"), and
+        multiplicative correction ("Mult") methods, for a given degree and all
+        specified M values.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list): A list of M values to use in the multiplicative error estimation.
+        """
         plt.figure(figsize=(5, 5))
 
         df_FEM = None
@@ -127,7 +189,17 @@ class CompareMethods:
             print(f'No data found for param{self.ee.param_num} deg{degree}')
             plt.close()
     
-    def plot_Mult_vs_Add_vs_FEM_alldeg_allM(self,tab_M):
+    def plot_Mult_vs_Add_vs_FEM_alldeg_allM(self, tab_M):
+        """Plot comparison of Mult, Add, and FEM for all degrees and all M values.
+
+        This method iterates through all degrees specified in `self.ee.tab_degree`
+        and calls the `plot_Mult_vs_Add_vs_FEM_deg_allM` method for each degree,
+        generating a series of plots comparing the three methods for all
+        specified M values.
+
+        Args:
+            tab_M (list): A list of M values to use in the multiplicative error estimation.
+        """
         for degree in self.ee.tab_degree:
             self.plot_Mult_vs_Add_vs_FEM_deg_allM(degree,tab_M)
         
@@ -135,7 +207,18 @@ class CompareMethods:
     # Tables #
     ##########
     
-    def save_tab_deg_allM(self,degree,tab_M=None):
+    def save_tab_deg_allM(self, degree, tab_M=None):
+        """Save a table of errors and convergence factors for a given degree and all M values.
+
+        This method generates and saves a table containing the errors and
+        convergence factors for each method (FEM, Corr, Mult) for a given
+        degree and all specified M values. The table is saved as a CSV and
+        PNG file.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider. Defaults to None.
+        """
         tab_vals = []
         iterables = []
         
@@ -216,12 +299,40 @@ class CompareMethods:
             table_conversion = "matplotlib"
             dfi.export(formatted_df, filename+'.png', dpi=300, table_conversion=table_conversion)
         
-    def save_tab_alldeg_allM(self,tab_M=None):
+    def save_tab_alldeg_allM(self, tab_M=None):
+        """Save tables of errors and convergence factors for all degrees and M values.
+
+        This method generates and saves tables containing the errors and
+        convergence factors for each method (FEM, Corr, Mult) for all degrees
+        and M values specified. The tables are saved as CSV and PNG files.
+
+        Args:
+            tab_M (list, optional): A list of M values to consider. Defaults to None.
+        """
         for degree in self.ee.tab_degree:
             self.save_tab_deg_allM(degree,tab_M)
             
 class CompareMethodsMeshSize(CompareMethods):
-    def __get_index(self,tab,val):
+    """CompareMethodsMeshSize class.
+
+    This subclass of `CompareMethods` provides methods for comparing different error estimation
+    methods (FEM, additive correction, multiplicative correction) and
+    visualizing the results, with a focus on mesh size and precision.
+    """
+    def __get_index(self, tab, val):
+        """Get the index of the first element in 'tab' that is less than 'val'.
+
+        This is a private helper method used for linear interpolation.
+        It performs a binary search-like operation to efficiently find the
+        appropriate index.
+
+        Args:
+            tab (list or numpy.ndarray): A sorted array of values.
+            val (float): The target value.
+
+        Returns:
+            int: The index of the first element in 'tab' less than 'val'.
+        """
         tab = np.array(tab)
         if val < tab[-1]:
             return len(tab)-1
@@ -229,7 +340,21 @@ class CompareMethodsMeshSize(CompareMethods):
             return 1
         return np.where(tab < val)[0][0]
     
-    def __linear_interpolation_on_x(self,tab,given_y):
+    def __linear_interpolation_on_x(self, tab, given_y):
+        """Perform linear interpolation to estimate x for a given y.
+
+        This method performs linear interpolation on a log-log scale to
+        estimate the value of x for a given y, based on the provided table
+        of x and y values.
+
+        Args:
+            tab (numpy.ndarray): A 2D array where the first column represents x
+                values and the second column represents y values.
+            given_y (float): The target y value for which to estimate x.
+
+        Returns:
+            float: The estimated x value.
+        """
         tab_x,tab_y = tab[:,0],tab[:,1]
         index = self.__get_index(tab_y,given_y)
         
@@ -245,7 +370,23 @@ class CompareMethodsMeshSize(CompareMethods):
         
         return np.exp(x_inter)
     
-    def get_N_deg_M(self,method,given_precision,degree,M=None,impose_bc=True):
+    def get_N_deg_M(self, method, given_precision, degree, M=None, impose_bc=True):
+        """Estimate the number of vertices (N) needed to achieved a given precision for a given method.
+        
+        This method estimates the required mesh size (number of vertices) for
+        a given method, degree, and optionally an M value (for the
+        "Mult" method) to achieved a given precision, using linear interpolation on a log-log scale.
+
+        Args:
+            method (str): The error estimation method ("FEM", "Corr", or "Mult").
+            given_precision (float): The target precision (L2 error norm).
+            degree (int): The degree of the finite element solution.
+            M (float, optional): Lifting constant. Required for "Mult" method. Defaults to None.
+            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.
+
+        Returns:
+            float: The estimated number of vertices (N).
+        """
         assert method in ["FEM","Corr","Mult"], f"method={method} is not implemented"
         if method == "Mult":
             assert M is not None, f"M is required for {method}"
@@ -266,7 +407,23 @@ class CompareMethodsMeshSize(CompareMethods):
         
         return self.__linear_interpolation_on_x(tab,given_precision)
 
-    def get_N_at_given_precision_deg_allM(self,given_precision,degree,tab_M=None):
+    def get_N_at_given_precision_deg_allM(self, given_precision, degree, tab_M=None):
+        """Estimate the number of vertices (N) needed for each method to achieve a given precision.
+
+        This method estimates the required mesh size (number of vertices) for
+        each method (FEM, Corr, Mult) to achieve a given precision, for a
+        given degree and optionally a range of M values (for the "Mult"
+        method).
+
+        Args:
+            given_precision (float): The target precision (L2 error norm).
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+
+        Returns:
+            dict: A dictionary containing the estimated number of vertices (N)
+                for each method.
+        """
         tab_methods = ["FEM","Corr"]
         if tab_M is not None:
             tab_methods.append("Mult")
@@ -288,7 +445,22 @@ class CompareMethodsMeshSize(CompareMethods):
         
         return tab_N
     
-    def save_tab_given_precisions_deg_allM(self,degree,tab_M=None,tab_given_precision = [1e-3,1e-4]):
+    def save_tab_given_precisions_deg_allM(self, degree, tab_M=None, tab_given_precision=[1e-3, 1e-4]):
+        """Save a table of required N for given precisions, degree, and all M values.
+
+        This method calculates and saves a table showing the required number of
+        vertices (N) for each method (FEM, Corr, Mult) to achieve a set of
+        given precisions, for a specific degree and all specified M values.
+        The table is saved as both a CSV and a PNG image.
+
+        Args:
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+            tab_given_precision (list, optional): A list of target precisions (L2 error norms). Defaults to [1e-3, 1e-4].
+
+        Returns:
+            pandas.DataFrame: The generated DataFrame containing the required N values.
+        """
         result_dir = self.ee.results_dir + "TabN/"
         if not os.path.exists(result_dir):
             os.makedirs(result_dir)
@@ -316,7 +488,19 @@ class CompareMethodsMeshSize(CompareMethods):
         
         return df
     
-    def save_tab_given_precisions_alldeg_allM(self,tab_M=None):
+    def save_tab_given_precisions_alldeg_allM(self, tab_M=None):
+        """Save tables of required N for given precisions, all degrees, and all M values.
+
+        This method calculates and saves tables showing the required number of
+        vertices (N) for each method (FEM, Corr, Mult) to achieve a set of
+        given precisions, for all degrees and all specified M values. The
+        tables are saved as both CSV and PNG images.
+
+        Args:
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+
+        Returns: None
+        """
         result_dir = self.ee.results_dir + "TabN/"
         if not os.path.exists(result_dir):
             os.makedirs(result_dir)
@@ -337,7 +521,25 @@ class CompareMethodsMeshSize(CompareMethods):
         dfi.export(df, filename+'.png', dpi=300, table_conversion=table_conversion)
         
 class CompareMethodsDoFs(CompareMethodsMeshSize):
-    def get_total_parameters_of_net(self,u_theta):
+    """CompareMethodsDoFs class.
+
+    This subclass of `CompareMethodsMeshSize` provides methods for comparing different error estimation
+    methods (FEM, additive correction, multiplicative correction) and
+    visualizing the results, with a focus on mesh size and precision, in particular
+    the number of degrees of freedom (DoFs).
+    """
+    def get_total_parameters_of_net(self, u_theta):
+        """Get the total number of parameters in the neural network.
+
+        This method calculates and returns the total number of trainable
+        parameters in the neural network used for the predicted solution.
+
+        Args:
+            u_theta: The predicted solution object, containing the neural network.
+
+        Returns:
+            int: The total number of parameters in the network.
+        """
         net = u_theta.net
         
         total_params = 0
@@ -346,7 +548,23 @@ class CompareMethodsDoFs(CompareMethodsMeshSize):
         
         return total_params
     
-    def get_dofs_at_given_precision_deg_allM(self,given_precision,degree,tab_M=None):
+    def get_dofs_at_given_precision_deg_allM(self, given_precision, degree, tab_M=None):
+        """Get the number of degrees of freedom (DoFs) for each method at a given precision.
+
+        This method calculates the required number of vertices (N) for each
+        method to achieve a given precision, then determines the corresponding
+        number of DoFs for each method using the calculated N values.
+
+        Args:
+            given_precision (float): The target precision (L2 error norm).
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing two dictionaries: `tab_N` with the
+                estimated number of vertices (N) for each method, and
+                `tab_nb_dofs` with the corresponding number of DoFs.
+        """
         tab_N = self.get_N_at_given_precision_deg_allM(given_precision,degree,tab_M=tab_M)
         # round the values to the upper integer
         tab_N = {key:round(val) for key,val in tab_N.items()}
@@ -361,7 +579,28 @@ class CompareMethodsDoFs(CompareMethodsMeshSize):
             
         return tab_N,tab_nb_dofs  
             
-    def save_tab_given_precisions_deg_allM(self,u_theta,degree,tab_M=None,tab_given_precision = [1e-3,1e-4],n_params=100):
+    def save_tab_given_precisions_deg_allM(self, u_theta, degree, tab_M=None, tab_given_precision=[1e-3, 1e-4], n_params=100):
+        """Save tables of DoFs and N for given precisions, degree, and all M values.
+
+        This method calculates and saves tables of the required number of
+        vertices (N) and degrees of freedom (DoFs) for each method (FEM,
+        Corr, Mult, and PINNs) to achieve a set of given precisions, for a
+        specific degree and all specified M values. It also calculates DoFs
+        with network parameters and saves them. The tables are saved as CSV
+        and PNG images.
+
+        Args:
+            u_theta: The predicted solution, containing the neural network.
+            degree (int): The degree of the finite element solution.
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+            tab_given_precision (list, optional): A list of target precisions. Defaults to [1e-3, 1e-4].
+            n_params (int, optional): Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.
+
+        Returns:
+            tuple: A tuple containing two pandas DataFrames: `df` with N and
+                DoFs, and `df_dofs_nparams` with DoFs including network
+                parameters.
+        """
         result_dir = self.ee.results_dir + "TabDoFs/"
         if not os.path.exists(result_dir):
             os.makedirs(result_dir)
@@ -417,7 +656,22 @@ class CompareMethodsDoFs(CompareMethodsMeshSize):
         
         return df,df_dofs_nparams
 
-    def save_tab_given_precisions_alldeg_allM(self,u_theta,tab_M=None,n_params=100):
+    def save_tab_given_precisions_alldeg_allM(self, u_theta, tab_M=None, n_params=100):
+        """Save tables of DoFs and N for given precisions, all degrees, and all M values.
+
+        This method calculates and saves tables showing the required number of
+        vertices (N) and degrees of freedom (DoFs) for each method (FEM, Corr,
+        Mult, and PINNs) to achieve a set of given precisions, for all degrees
+        and all specified M values. It also calculates DoFs with network
+        parameters and saves them. The tables are saved as CSV and PNG images.
+
+        Args:
+            u_theta: The predicted solution, containing the neural network.
+            tab_M (list, optional): A list of M values to consider for the "Mult" method. Defaults to None.
+            n_params (int, optional): Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.
+
+        Returns: None
+        """
         result_dir = self.ee.results_dir + "TabDoFs/"
         if not os.path.exists(result_dir):
             os.makedirs(result_dir)

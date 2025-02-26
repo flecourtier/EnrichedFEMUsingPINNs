@@ -1,7 +1,7 @@
-modfenics
+testcases
 =========
 
 .. toctree::
    :maxdepth: 4
 
-   modfenics
+   testcases

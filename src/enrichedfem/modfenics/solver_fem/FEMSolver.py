@@ -39,7 +39,7 @@ current = Path(__file__).parent.parent
 #######
 
 class FEMSolver(abc.ABC):
-    """Initialize the FEM solver.
+    """FEM solver.
 
     This class sets up the FEM domain, solves the FEM system,
     and computes the error between the FEM solution and the
