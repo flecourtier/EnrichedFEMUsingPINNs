@@ -3,7 +3,6 @@ numpy
 sympy
 pandas
 dataframe_image
-fenics
 torch
 pathlib
 scimba
