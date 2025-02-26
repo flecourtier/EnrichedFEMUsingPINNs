@@ -1,0 +1,9 @@
+name: fenicsproject
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10  # ou toute autre version de Python
+  - fenics
+  - pip
+  - pip:
+      - -r requirements.txt
