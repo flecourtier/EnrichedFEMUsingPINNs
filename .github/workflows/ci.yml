@@ -46,7 +46,6 @@ jobs:
       - name: Build Sphinx documentation
         working-directory: docs/sphinx
         run: |
-          source activate myenv  # Réactiver l'environnement Conda
           make html  # Générer la documentation
 
       # Déployer la documentation sur GitHub Pages
