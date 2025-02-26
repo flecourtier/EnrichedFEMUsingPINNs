@@ -18,10 +18,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
 
       - name: Install FEniCS
         run: |
@@ -31,19 +31,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y fenics
 
-      - name: Install project modules
+      - name: Vérifier l'installation de FEniCS
         run: |
-          pip install -e .
+          python -c "import dolfin; print(dolfin.__version__)"
+
+
+      # - name: Install project modules
+      #   run: |
+      #     pip install -e .
         
 
-      - name: Build Sphinx documentation
-        working-directory: docs/sphinx
-        run: make html
+      # - name: Build Sphinx documentation
+      #   working-directory: docs/sphinx
+      #   run: make html
 
-      - name: Deploy sphinx 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages # The branch the action should deploy to.
-          target-folder: build_sphinx
-          folder: docs/sphinx/_build/html
+      # - name: Deploy sphinx 🚀
+      #   uses: JamesIves/github-pages-deploy-action@v4.3.3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: gh-pages # The branch the action should deploy to.
+      #     target-folder: build_sphinx
+      #     folder: docs/sphinx/_build/html
