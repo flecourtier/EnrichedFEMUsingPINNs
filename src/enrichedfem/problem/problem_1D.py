@@ -2,7 +2,18 @@ from enrichedfem.geometry.geometry_1D import Line1
 from math import *
 import dolfin
 import abc
+
 class TestCase1D(abc.ABC):
+    """Abstract base class for 1D test cases.
+
+    This class defines the common interface for all 1D test cases, including
+    properties for geometry, number of parameters, parameter domain, and
+    availability of an analytical solution.
+
+    Args:
+        testcase (int): The test case number.
+        version (int): The version number of the test case.
+    """
     def __init__(self,testcase,version):
         self.testcase = testcase
         self.version = version
@@ -36,17 +47,11 @@ class TestCase1(TestCase1D):
         self.set_params = [[0.3, 0.2, 0.1], [0.8, 0.5, 0.8]]
         
     def u_ex(self, pre, xy, mu):
-        # if pre is dolfin:
-        #     x=xy[0]
-        # else:
         x=xy
         alpha,beta,gamma = mu
         return alpha*pre.sin(2.0*pre.pi*x) + beta*pre.sin(4.0*pre.pi*x) + gamma*pre.sin(6.0*pre.pi*x)
 
     def du_ex_dx(self, pre, xy, mu):
-        # if pre is dolfin:
-        #     x=xy[0]
-        # else:
         x=xy
         alpha,beta,gamma = mu
         return 2.0*pre.pi*alpha*pre.cos(2.0*pre.pi*x) + 4.0*pre.pi*beta*pre.cos(4.0*pre.pi*x) + 6.0*pre.pi*gamma*pre.cos(6.0*pre.pi*x)

@@ -1,0 +1,34 @@
+{
+    "config": {
+        "dimension": 2,
+        "testcase": 1,
+        "version": 1
+    },
+    "EE": {
+        "degree": [
+            1,
+            2,
+            3
+        ],
+        "methods": [
+            "FEM",
+            "Add"
+        ],
+        "param_num": [
+            1,
+            2
+        ]
+    },
+    "gains": {
+        "degree": [
+            1,
+            2,
+            3
+        ],
+        "methods": [
+            "FEM",
+            "Add"
+        ],
+        "n_params": 50
+    }
+}
