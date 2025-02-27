@@ -20,11 +20,11 @@ def choice_methods(config):
     if config['dimension'] == 1:
         if config['testcase'] == 1:
             if config['version'] == 1:
-                methods = ["FEM","Add","MultM3","MultM100"]
+                methods = {"FEM":None,"Add":None,"Mult":[3.0,100.0]}
         else:
-            methods = ["FEM","Add","MultM0W","MultM0S"]
+            methods = {"FEM":None,"Add":None,"Mult":[0.0],"MultW":[0.0]}
     else:
-        methods = ["FEM","Add"]
+        methods = {"FEM":None,"Add":None}
     return methods
 
 def choice_nparams(config):
@@ -48,10 +48,21 @@ def ask_error_estimates(tests_config):
         # Methods
         possibility_methods = list(np.arange(1,len(pb_methods)+1))
         print(f"\n## Methods : The available methods are: {possibility_methods}")
-        print(get_str(pb_methods))
+        global_methods = list(pb_methods.keys())
+        print(get_str(global_methods))
         tab_indmethods = qcm(input(f"-> Which methods would you like to consider [A - All] ? "),possibility_methods,f"Methods must be : {possibility_methods}") 
         tab_indmethods = list(map(lambda x: x - 1, tab_indmethods))
-        tab_methods = list(np.array(pb_methods)[tab_indmethods])
+        tab_methods = list(np.array(global_methods)[tab_indmethods])
+        
+        dict_methods = {}
+        for method in tab_methods:
+            if pb_methods[method]:
+                print(f"\n# {method} :")
+                print(get_str(pb_methods[method]))
+                tab_sub = qcm(input(f"-> Which sub-methods would you like to consider for {method} [A - All] ? "),pb_methods[method],f"Sub-methods must be : {pb_methods[method]}")
+                dict_methods[method] = tab_sub
+            else:
+                dict_methods[method] = None
         
         # Parameters
         print(f"\n## Parameters :")
@@ -85,7 +96,7 @@ def ask_error_estimates(tests_config):
                     
             new_generation = binary_question(input(f"-> Would you like to generate a new parameter? [Y/N]  "))
             
-        tests_config["EE"] = {"degree":tab_degree,"methods":tab_methods}
+        tests_config["EE"] = {"degree":tab_degree,"methods":dict_methods}
         if random:
             tests_config["EE"]["param_num"] = tab_param_num
         else:
@@ -97,6 +108,8 @@ def ask_gains(tests_config):
     config = tests_config["config"] 
     possibility_degree = choice_degree(config)
     pb_methods = choice_methods(config)
+    # Remove FEM from the methods
+    del pb_methods["FEM"]
     n_params = choice_nparams(config)
     
     run_gains = binary_question(input(f"-> Would you like to run the gains of enriched FEM? [Y/N]  "))
@@ -109,15 +122,32 @@ def ask_gains(tests_config):
         # Methods
         possibility_methods = list(np.arange(1,len(pb_methods)+1))
         print(f"\n## Methods : The available methods are: {possibility_methods}")
-        print(get_str(pb_methods))
+        # print(get_str(pb_methods))
+        # tab_indmethods = qcm(input(f"-> Which methods would you like to consider [A - All] ? "),possibility_methods,f"Methods must be : {possibility_methods}") 
+        # tab_indmethods = list(map(lambda x: x - 1, tab_indmethods))
+        # tab_methods = list(np.array(pb_methods)[tab_indmethods])
+        
+        global_methods = list(pb_methods.keys())
+        print(get_str(global_methods))
         tab_indmethods = qcm(input(f"-> Which methods would you like to consider [A - All] ? "),possibility_methods,f"Methods must be : {possibility_methods}") 
         tab_indmethods = list(map(lambda x: x - 1, tab_indmethods))
-        tab_methods = list(np.array(pb_methods)[tab_indmethods])
+        tab_methods = list(np.array(global_methods)[tab_indmethods])
+        
+        dict_methods = {}
+        for method in tab_methods:
+            if pb_methods[method]:
+                print(f"\n# {method} :")
+                print(get_str(pb_methods[method]))
+                tab_sub = qcm(input(f"-> Which sub-methods would you like to consider for {method} [A - All] ? "),pb_methods[method],f"Sub-methods must be : {pb_methods[method]}")
+                dict_methods[method] = tab_sub
+            else:
+                dict_methods[method] = None
+        
         
         # Number of parameters
         print(f"\n## Number of parameters : {n_params}")
         
-        tests_config["gains"] = {"degree":tab_degree,"methods":tab_methods,"n_params":n_params}
+        tests_config["gains"] = {"degree":tab_degree,"methods":dict_methods,"n_params":n_params}
             
     return tests_config
                 
@@ -167,15 +197,16 @@ def check_config(config_file):
     
     return tests_config
 
-def select_tests():
-    answer = binary_question(input("-> Would you like to create a configuration file? [Y/N]  "))
+def select_tests(answer=None):
+    if answer is None:
+        answer = binary_question(input("-> Would you like to create a configuration file? [Y/N]  "))
     
     if answer:
         print("###########################")
         print("### Select the testcase ###")
         print("###########################")
         
-        config = select_testcase(answer="N")
+        config = select_testcase(answer=False)
         tests_config = {}
         tests_config["config"] = config
     

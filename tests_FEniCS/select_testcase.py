@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from utils import get_str,read_config
+from utils import get_str,read_config,binary_question
 import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,11 +73,9 @@ def check_config(config_file):
 
 def select_testcase(answer=None):
     if answer is None:
-        answer = input("-> Would you like to create a configuration file? [Y/N]  ")
-        answer = answer.upper()
-        assert answer in ["Y", "N"], "Answer must be Y or N"
+        answer = binary_question(input("-> Would you like to create a configuration file? [Y/N]  "))
     
-    if answer == "Y":
+    if answer:
         print("\n### Creation of the configuration file ###")
     
         # Question 1: Ask for the dimension
@@ -122,7 +120,7 @@ def select_testcase(answer=None):
         config_file = config_file + ".json"
 
     # Write the dictionary to a json file
-    if answer == "Y":
+    if answer:
         with open(current_dir+config_file, "w") as json_file:
             json.dump(config, json_file, indent=4)
 

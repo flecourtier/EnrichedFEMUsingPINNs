@@ -1,19 +1,23 @@
 {
     "config": {
-        "dimension": 2,
-        "testcase": 1,
+        "dimension": 1,
+        "testcase": 2,
         "version": 1
     },
     "EE": {
         "degree": [
-            1,
-            2,
-            3
+            1
         ],
-        "methods": [
-            "FEM",
-            "Add"
-        ],
+        "methods": {
+            "FEM": null,
+            "Add": null,
+            "Mult": [
+                0.0
+            ],
+            "MultW": [
+                0.0
+            ]
+        },
         "param_num": [
             1,
             2
@@ -21,14 +25,17 @@
     },
     "gains": {
         "degree": [
-            1,
-            2,
-            3
+            1
         ],
-        "methods": [
-            "FEM",
-            "Add"
-        ],
+        "methods": {
+            "Add": null,
+            "Mult": [
+                0.0
+            ],
+            "MultW": [
+                0.0
+            ]
+        },
         "n_params": 50
     }
 }

@@ -10,7 +10,6 @@ def binary_question(answer):
     return False
 
 def qcm(answer,possibility,error_str):
-    print(answer)
     if answer == 'A' or answer == 'a':
         tab = possibility
     else:
