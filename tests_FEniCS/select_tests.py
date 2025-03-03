@@ -104,6 +104,11 @@ def ask_error_estimates(tests_config):
             
     return tests_config
 
+
+# def ask_theogains(tests_config):
+#     config = tests_config["config"]
+#     possibility_degree = choice_degree(config)
+
 def ask_gains(tests_config):   
     config = tests_config["config"] 
     possibility_degree = choice_degree(config)
@@ -121,12 +126,7 @@ def ask_gains(tests_config):
         
         # Methods
         possibility_methods = list(np.arange(1,len(pb_methods)+1))
-        print(f"\n## Methods : The available methods are: {possibility_methods}")
-        # print(get_str(pb_methods))
-        # tab_indmethods = qcm(input(f"-> Which methods would you like to consider [A - All] ? "),possibility_methods,f"Methods must be : {possibility_methods}") 
-        # tab_indmethods = list(map(lambda x: x - 1, tab_indmethods))
-        # tab_methods = list(np.array(pb_methods)[tab_indmethods])
-        
+        print(f"\n## Methods : The available methods are: {possibility_methods}")        
         global_methods = list(pb_methods.keys())
         print(get_str(global_methods))
         tab_indmethods = qcm(input(f"-> Which methods would you like to consider [A - All] ? "),possibility_methods,f"Methods must be : {possibility_methods}") 
@@ -217,11 +217,18 @@ def select_tests(answer=None):
         print("\n### Creation of the configuration file ###")
 
         # Question 1: Ask for the error_estimates
+        # ALL TESTCASES (except 1D - testcase1 V2)
         if not (config['dimension'] == 1 and config['testcase'] == 1 and config['version'] == 2):
             print("\n### Error estimates")
             tests_config = ask_error_estimates(tests_config)
             
-        # Question 2: Ask for the gains
+        # # Question 2: Ask for the theoretical gains
+        # # 1D - testcase1 V1
+        # if config['dimension'] == 1 and config['testcase'] == 1 and config['version'] == 1:
+        #     print("\n### Theoretical gains constant")
+        #     tests_config = ask_theogains(tests_config)
+            
+        # Question 3: Ask for the gains
         print("\n### Gains")
         tests_config = ask_gains(tests_config)
         

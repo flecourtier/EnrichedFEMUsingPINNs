@@ -129,11 +129,24 @@ def run_tests():
         
         eeconfig = tests_config["EE"]
         run_error_estimates(eeconfig,problem,u_theta)
-    
+            
+    # ALL TESTCASES
     if "gains" in tests_config:
         
         gainsconfig = tests_config["gains"]
         run_gains(gainsconfig,problem,u_theta)
+    
+    ## TESTS1D
+    # test1 V1 : theoretical gains + derivatives
+    # test1 V2 : derivatives
+    # test2 : derivatives + comparison
+    
+    ## TESTS2D
+    # test1 V1 : comparison + costs
+    # test2 : comparison
+    # test3 : comparison
+    # test4 : comparison
+    
     
 if __name__ == "__main__":
     run_tests()
