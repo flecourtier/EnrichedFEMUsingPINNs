@@ -1,41 +1,13 @@
 {
     "config": {
-        "dimension": 1,
-        "testcase": 2,
+        "dimension": 2,
+        "testcase": 3,
         "version": 1
     },
-    "EE": {
-        "degree": [
-            1
-        ],
-        "methods": {
-            "FEM": null,
-            "Add": null,
-            "Mult": [
-                0.0
-            ],
-            "MultW": [
-                0.0
-            ]
-        },
+    "refsol": {
         "param_num": [
             1,
             2
         ]
-    },
-    "gains": {
-        "degree": [
-            1
-        ],
-        "methods": {
-            "Add": null,
-            "Mult": [
-                0.0
-            ],
-            "MultW": [
-                0.0
-            ]
-        },
-        "n_params": 50
     }
 }

@@ -33,6 +33,39 @@ def choice_nparams(config):
         n_params = 100
     return n_params
 
+def run_params(config):
+    new_generation = True
+    tab_param_num = []
+    tab_params = []
+    
+    random = binary_question(input(f"-> Would you like to randomly draw parameters? [Y/N]  "))
+    while new_generation:
+        if random:
+            tab_param_num.append(int(input(f"-> Give an index of parameters : ")))
+        else:
+            class_name = f"TestCase{config['testcase']}"
+            if config['dimension'] == 1:
+                cls = getattr(problem_1D, class_name)  
+            else:
+                cls = getattr(problem_2D, class_name)
+            problem = cls()
+            nb_parameters = problem.nb_parameters
+            parameter_domain = problem.parameter_domain
+            
+            print("# The parameters domains are:")
+            for i in range(nb_parameters):
+                print(f"-> Parameter {i+1} : {parameter_domain[i]}")
+            
+            params = input(f"-> Give the parameters [p1,p2,...] : ")
+            params = list(map(float, params.split(",")))
+            for i in range(nb_parameters):
+                assert parameter_domain[i][0] <= params[i] <= parameter_domain[i][1], f"Parameter {i+1} must be in {parameter_domain[i]}"
+            tab_params.append(params)
+                
+        new_generation = binary_question(input(f"-> Would you like to generate a new parameter? [Y/N]  "))
+        
+    return random,tab_param_num,tab_params
+
 def ask_error_estimates(tests_config):    
     config = tests_config["config"] 
     possibility_degree = choice_degree(config)
@@ -63,44 +96,46 @@ def ask_error_estimates(tests_config):
                 dict_methods[method] = tab_sub
             else:
                 dict_methods[method] = None
-        
+                
+    
         # Parameters
         print(f"\n## Parameters :")
-        new_generation = True
-        tab_param_num = []
-        tab_params = []
+        random,tab_param_num,tab_params = run_params(config)
         
-        random = binary_question(input(f"-> Would you like to randomly draw parameters? [Y/N]  "))
-        while new_generation:
-            if random:
-                tab_param_num.append(int(input(f"-> Give an index of parameters : ")))
-            else:
-                class_name = f"TestCase{config['testcase']}"
-                if config['dimension'] == 1:
-                    cls = getattr(problem_1D, class_name)  
-                else:
-                    cls = getattr(problem_2D, class_name)
-                problem = cls()
-                nb_parameters = problem.nb_parameters
-                parameter_domain = problem.parameter_domain
-                
-                print("# The parameters domains are:")
-                for i in range(nb_parameters):
-                    print(f"-> Parameter {i+1} : {parameter_domain[i]}")
-                
-                params = input(f"-> Give the parameters [p1,p2,...] : ")
-                params = list(map(float, params.split(",")))
-                for i in range(nb_parameters):
-                    assert parameter_domain[i][0] <= params[i] <= parameter_domain[i][1], f"Parameter {i+1} must be in {parameter_domain[i]}"
-                tab_params.append(params)
-                    
-            new_generation = binary_question(input(f"-> Would you like to generate a new parameter? [Y/N]  "))
-            
         tests_config["EE"] = {"degree":tab_degree,"methods":dict_methods}
         if random:
             tests_config["EE"]["param_num"] = tab_param_num
         else:
             tests_config["EE"]["params"] = tab_params
+        
+            
+    return tests_config
+
+def ask_run_refsol(tests_config):
+    config = tests_config["config"] 
+    
+    class_name = f"TestCase{config['testcase']}"
+    if config['dimension'] == 1:
+        cls = getattr(problem_1D, class_name)  
+    else:
+        cls = getattr(problem_2D, class_name)
+    problem = cls()
+    
+    if not problem.ana_sol:
+        print("\n### Compute reference solutions")
+
+        run_refsol = binary_question(input(f"-> Would you like to compute reference solutions ? [Y/N]  "))
+        
+        if run_refsol:
+            # Parameters
+            print(f"\n## Parameters :")
+            random,tab_param_num,tab_params = run_params(config)
+            
+            tests_config["refsol"] = {}
+            if random:
+                tests_config["refsol"]["param_num"] = tab_param_num
+            else:
+                tests_config["refsol"]["params"] = tab_params
             
     return tests_config
 
@@ -221,6 +256,9 @@ def select_tests(answer=None):
         if not (config['dimension'] == 1 and config['testcase'] == 1 and config['version'] == 2):
             print("\n### Error estimates")
             tests_config = ask_error_estimates(tests_config)
+            
+        # Question 2: Ask for the reference solutions
+        tests_config = ask_run_refsol(tests_config)
             
         # # Question 2: Ask for the theoretical gains
         # # 1D - testcase1 V1

@@ -66,6 +66,31 @@ def run_error_estimates(eeconfig,problem,u_theta):
     else:
         assert False, "Given parameters are not implemented yet"
         
+def run_refsol(eeconfig,problem):
+    print("\n############################## Reference solutions ##############################\n")
+    
+    from enrichedfem.error_estimations.utils import get_solver_type
+    from enrichedfem.problem.utils import create_tree,select_param
+    solver_type = get_solver_type(problem.dim,problem.testcase,problem.version)
+    
+    if "param_num" in eeconfig:
+        tab_param_num = eeconfig["param_num"]   
+        degree = 1
+        
+        for param_num in tab_param_num:
+            print(f"\n############################## Param num: {param_num} ##############################\n")
+            
+            params = [select_param(problem,param_num)]     
+            savedir = current_dir + f"/results/fenics/test_{problem.dim}D/testcase{problem.testcase}/version{problem.version}/uref/param{param_num}/"
+            create_tree(savedir)
+            filename = savedir + f"u_ref_{param_num}.npy"
+            save_uref = [filename]
+            
+            solver_type(params=params, problem=problem, degree=degree, save_uref=save_uref)
+        
+    else:
+        assert False, "Given parameters are not implemented yet"
+        
 def run_gains(gainsconfig,problem,u_theta):
     print("\n############################## Gains ##############################\n")
     
@@ -134,13 +159,15 @@ def run_tests():
     _,u_theta = getattr(netmodule,f"Run_laplacian{dimension}D")(pde)
     
     if "EE" in tests_config:
-        
         eeconfig = tests_config["EE"]
         run_error_estimates(eeconfig,problem,u_theta)
             
+    if "refsol" in tests_config:
+        refconfig = tests_config["refsol"]
+        run_refsol(refconfig,problem)       
+    
     # ALL TESTCASES
     if "gains" in tests_config:
-        
         gainsconfig = tests_config["gains"]
         run_gains(gainsconfig,problem,u_theta)
     
