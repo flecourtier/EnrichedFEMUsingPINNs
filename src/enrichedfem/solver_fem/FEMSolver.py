@@ -18,8 +18,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-rc('text', usetex=True)
+# rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+# rc('text', usetex=True)
 
 df.parameters["ghost_mode"] = "shared_facet"
 df.parameters["form_compiler"]["cpp_optimize"] = True
