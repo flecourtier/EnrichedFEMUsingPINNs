@@ -5,5 +5,3 @@ dependencies:
   - python=3.9.16
   - fenics
   - mshr
-  - pip:
-      - -r requirements.txt
