@@ -2,9 +2,9 @@ services:
   enrichedfem:
     user: "1001:1001"
     container_name: contenrichedfem
-    working_dir: /usr/src/app
+    working_dir: /app
     build:
-      dockerfile: Dockerfile.python
+      dockerfile: Dockerfile
     volumes:
       - ~/.vscode-server:/root/.vscode-server
     command: /bin/bash
