@@ -4,8 +4,16 @@ from select_tests import select_tests
 import importlib
 import os
 
-new_run = False
-plot_cvg = False
+import argparse
+
+parser = argparse.ArgumentParser(description='Run tests')
+parser.add_argument('--new_run', action='store_true', help='Run new simulations')
+args = parser.parse_args()
+
+new_run = args.new_run
+
+if new_run:
+    print("Be careful, you are running new simulations !!")
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 current_dir = os.path.dirname(current_dir)
@@ -31,11 +39,11 @@ def run_error_estimates(eeconfig,problem,u_theta):
             
             if "FEM" in global_methods:
                 print(f"\n###### FEM")
-                error_estimations.run_fem_alldeg(new_run=new_run,plot_cvg=plot_cvg)
+                error_estimations.run_fem_alldeg(new_run=new_run)
             
             if "Add" in global_methods:
                 print(f"\n###### Add")
-                error_estimations.run_corr_alldeg(u_theta,new_run=new_run,plot_cvg=plot_cvg)
+                error_estimations.run_corr_alldeg(u_theta,new_run=new_run)
                 
                 compare_methods.plot_Corr_vs_FEM_alldeg()
             
@@ -49,7 +57,7 @@ def run_error_estimates(eeconfig,problem,u_theta):
                     if method[-1] == "W":
                         impose_bc=False
                     
-                    error_estimations.run_mult_alldeg_allM(u_theta, tab_M=tab_M, impose_bc=impose_bc, new_run=new_run, plot_cvg=plot_cvg)
+                    error_estimations.run_mult_alldeg_allM(u_theta, tab_M=tab_M, impose_bc=impose_bc, new_run=new_run)
     
                     compare_methods.plot_Mult_vs_Add_vs_FEM_alldeg_allM(tab_M)
             

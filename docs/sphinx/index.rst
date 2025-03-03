@@ -8,6 +8,12 @@ Welcome to EnrichedFEM's documentation!
 
 .. toctree::
    :maxdepth: 5
+   :caption: Run tests:
+   
+   run_tests.md
+
+.. toctree::
+   :maxdepth: 5
    :caption: Contents:
    
    enrichedfem.error_estimations
