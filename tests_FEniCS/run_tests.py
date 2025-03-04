@@ -73,23 +73,40 @@ def run_refsol(eeconfig,problem):
     from enrichedfem.problem.utils import create_tree,select_param
     solver_type = get_solver_type(problem.dim,problem.testcase,problem.version)
     
+    savedir = current_dir + f"/results/fenics/test_{problem.dim}D/testcase{problem.testcase}/version{problem.version}/"
+    save_uref = []
     if "param_num" in eeconfig:
         tab_param_num = eeconfig["param_num"]   
-        degree = 1
+        params = []
         
+        savedir += "uref/" 
+        create_tree(savedir)
         for param_num in tab_param_num:
             print(f"\n############################## Param num: {param_num} ##############################\n")
             
-            params = [select_param(problem,param_num)]     
-            savedir = current_dir + f"/results/fenics/test_{problem.dim}D/testcase{problem.testcase}/version{problem.version}/uref/param{param_num}/"
-            create_tree(savedir)
-            filename = savedir + f"u_ref_{param_num}.npy"
-            save_uref = [filename]
+            param = select_param(problem,param_num)     
+            params.append(param)
             
-            solver_type(params=params, problem=problem, degree=degree, save_uref=save_uref)
-        
+            filename = savedir + f"u_ref_{param_num}.npy"
+            save_uref += [filename]
     else:
-        assert False, "Given parameters are not implemented yet"
+        assert "params" in eeconfig
+        params = eeconfig["params"]
+        
+        savedir += "uref_random/"
+        create_tree(savedir)
+        for param_num,param in enumerate(params):
+            filename = savedir + f"u_ref_{param_num}.npy"
+            save_uref += [filename]
+            
+    # save a csv file with the parameters
+    filename = savedir + "params.csv"
+    with open(filename, 'w') as f:
+        for i,param in enumerate(params):
+            f.write(f"{i} : {param}\n")
+        
+    solver_type(params=params, problem=problem, degree=1, save_uref=save_uref)
+
         
 def run_gains(gainsconfig,problem,u_theta):
     print("\n############################## Gains ##############################\n")
