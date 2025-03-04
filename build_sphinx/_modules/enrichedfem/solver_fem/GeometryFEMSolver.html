@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.solver_fem.GeometryFEMSolver &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.solver_fem.GeometryFEMSolver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.solver_fem.GeometryFEMSolver</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.geometry.geometry_2D</span><span class="w"> </span><span class="kn">import</span> <span class="n">Donut</span><span class="p">,</span> <span class="n">Square</span><span class="p">,</span> <span class="n">Circle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.geometry.geometry_1D</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfin</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">df</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.solver_fem.FEMSolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">FEMSolver</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mshr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1">###############</span>
+<span class="c1"># Geometry 1D #</span>
+<span class="c1">###############</span>
+
+<div class="viewcode-block" id="LineFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.LineFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LineFEMSolver</span><span class="p">(</span><span class="n">FEMSolver</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 1D mesh for a line segment.</span>
+
+<span class="sd">    This subclass of the `FEMSolver` creates a 1D mesh of the line segment defined by the problem&#39;s geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>   
+<div class="viewcode-block" id="LineFEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.LineFEMSolver._create_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">):</span>     
+        <span class="c1"># check if pb_considered is instance of Line class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Line</span><span class="p">)</span>
+        
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">IntervalMesh</span><span class="p">(</span><span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span></div>
+</div>
+
+
+<span class="c1">###############</span>
+<span class="c1"># Geometry 2D #</span>
+<span class="c1">###############</span>
+
+<div class="viewcode-block" id="SquareFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.SquareFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SquareFEMSolver</span><span class="p">(</span><span class="n">FEMSolver</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D mesh for a square domain.</span>
+
+<span class="sd">    This subclass of the `FEMSolver` creates a rectangular mesh for the square domain defined by the problem&#39;s geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SquareFEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.SquareFEMSolver._create_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">):</span>
+        <span class="c1"># check if pb_considered is instance of Square class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Square</span><span class="p">)</span>
+        
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">RectangleMesh</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span> <span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span></div>
+</div>
+
+
+<span class="c1"># For more complicate geometry, we iterate to find the good caracteristic size of the mesh        </span>
+<div class="viewcode-block" id="ComplexFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.ComplexFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ComplexFEMSolver</span><span class="p">(</span><span class="n">FEMSolver</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate mesh for complex 2D geometries.</span>
+
+<span class="sd">    This subclass of the `FEMSolver` provides a method to generate meshes for complex 2D geometries</span>
+<span class="sd">    using mshr, ensuring the mesh resolution is appropriate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ComplexFEMSolver._generate_mesh_given_size">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.ComplexFEMSolver._generate_mesh_given_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_mesh_given_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate a mesh with a given characteristic size.</span>
+
+<span class="sd">        This method generates a mesh for the given domain and number of vertices,</span>
+<span class="sd">        iteratively refining until the mesh size is appropriate.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            domain (mshr.Domain): The domain to mesh.</span>
+<span class="sd">            nb_vert (int): Number of vertices for the rectangular mesh.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Mesh and computational time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">case_ex</span> <span class="o">=</span> <span class="n">nb_vert</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">N_ex</span><span class="o">+</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">H_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">H_start</span>
+        
+        <span class="n">box</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
+        
+        <span class="n">mesh_macro</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">RectangleMesh</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span> <span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">nb_vert</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">)</span>
+        <span class="n">h_macro</span> <span class="o">=</span> <span class="n">mesh_macro</span><span class="o">.</span><span class="n">hmax</span><span class="p">()</span>
+        <span class="c1"># print(&quot;h_macro = &quot;, h_macro)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">case_ex</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nb_vert</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+            <span class="c1"># print(&quot;ici&quot;)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H_start</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">mshr</span><span class="o">.</span><span class="n">generate_mesh</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="n">H</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">hmax</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="n">h_macro</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">start2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">mshr</span><span class="o">.</span><span class="n">generate_mesh</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="n">H</span><span class="p">)</span>
+            <span class="n">end2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">hmax</span><span class="p">()</span>
+            <span class="c1"># print(&quot;H = &quot;, H, &quot;h = &quot;, h)</span>
+        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">end2</span><span class="o">-</span><span class="n">start2</span></div>
+</div>
+
+    
+<div class="viewcode-block" id="CircleFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.CircleFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CircleFEMSolver</span><span class="p">(</span><span class="n">ComplexFEMSolver</span><span class="p">):</span> 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D mesh for a circle domain.</span>
+
+<span class="sd">    This subclass of the `ComplexFEMSolver` creates a circluar mesh for the circle domain defined by the problem&#39;s geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>   
+<div class="viewcode-block" id="CircleFEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.CircleFEMSolver._create_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_vert</span><span class="p">):</span>
+        <span class="c1"># check if pb_considered is instance of Square class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Circle</span><span class="p">)</span>
+        
+        <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">center</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">radius</span>
+        
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="n">mshr</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">radius</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">tps2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_mesh_given_size</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">)</span>
+
+        <span class="n">tps</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span> <span class="o">+</span> <span class="n">tps2</span>        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">tps</span></div>
+</div>
+
+
+<span class="c1"># For more complicate geometry, we iterate to find the good caracteristic size of the mesh        </span>
+<div class="viewcode-block" id="DonutFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.DonutFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DonutFEMSolver</span><span class="p">(</span><span class="n">ComplexFEMSolver</span><span class="p">):</span>   
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D mesh for a annulus domain.</span>
+
+<span class="sd">    This subclass of the `ComplexFEMSolver` creates a mesh for the donut defined by the problem&#39;s geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+<div class="viewcode-block" id="DonutFEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.DonutFEMSolver._create_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_vert</span><span class="p">):</span>
+        <span class="c1"># check if pb_considered is instance of Donut class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Donut</span><span class="p">)</span>
+        
+        <span class="n">bigcenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bigcircle</span><span class="o">.</span><span class="n">center</span>
+        <span class="n">bigradius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bigcircle</span><span class="o">.</span><span class="n">radius</span>
+        <span class="n">smallcenter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">hole</span><span class="o">.</span><span class="n">center</span>
+        <span class="n">smallradius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">hole</span><span class="o">.</span><span class="n">radius</span>
+        
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">bigcircle</span> <span class="o">=</span> <span class="n">mshr</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">bigcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">bigcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">bigradius</span><span class="p">)</span>
+        <span class="n">hole</span> <span class="o">=</span> <span class="n">mshr</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">smallcenter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">smallcenter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">smallradius</span><span class="p">)</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="n">bigcircle</span><span class="o">-</span><span class="n">hole</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">tps2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_mesh_given_size</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">)</span>
+
+        <span class="n">tps</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span> <span class="o">+</span> <span class="n">tps2</span>        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">tps</span></div>
+</div>
+
+    
+<span class="c1">###############</span>
+<span class="c1"># Geometry 3D #</span>
+<span class="c1">###############</span>
+
+<div class="viewcode-block" id="CubeFEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.CubeFEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CubeFEMSolver</span><span class="p">(</span><span class="n">FEMSolver</span><span class="p">):</span> 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 3D mesh for a cube domain.</span>
+
+<span class="sd">    This subclass of the `ComplexFEMSolver` creates a mesh for the cube domain defined by the problem&#39;s geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>      
+<div class="viewcode-block" id="CubeFEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.GeometryFEMSolver.CubeFEMSolver._create_mesh">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_vert</span><span class="p">):</span>
+        <span class="c1"># check if pb_considered is instance of Square class</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Square</span><span class="p">)</span>
+        
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">BoxMesh</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span> <span class="n">df</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nb_vert</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

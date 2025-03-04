@@ -1,0 +1,895 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.error_estimations package &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enrichedfem.fenics_expressions package" href="enrichedfem.fenics_expressions.html" />
+    <link rel="prev" title="Run Tests" href="run_tests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">enrichedfem.error_estimations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.error_estimations.compare">enrichedfem.error_estimations.compare module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods"><code class="docutils literal notranslate"><span class="pre">CompareMethods</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Corr_vs_FEM_alldeg"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_Corr_vs_FEM_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_M"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_Mult_vs_FEM_alldeg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_Mult_vs_FEM_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_method_vs_FEM_alldeg"><code class="docutils literal notranslate"><span class="pre">CompareMethods.plot_method_vs_FEM_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.save_tab_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethods.save_tab_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods.save_tab_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethods.save_tab_deg_allM()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs"><code class="docutils literal notranslate"><span class="pre">CompareMethodsDoFs</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_total_parameters_of_net"><code class="docutils literal notranslate"><span class="pre">CompareMethodsDoFs.get_total_parameters_of_net()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsDoFs.save_tab_given_precisions_deg_allM()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__get_index"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.__get_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__linear_interpolation_on_x"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.__linear_interpolation_on_x()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_at_given_precision_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.get_N_at_given_precision_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_deg_M"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.get_N_deg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareMethodsMeshSize.save_tab_given_precisions_deg_allM()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.error_estimations.error_estimations">enrichedfem.error_estimations.error_estimations module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.__infos_from_problem"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.__infos_from_problem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.read_csv"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.read_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_alldeg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_corr_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_deg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_corr_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_alldeg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_error_estimations_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_deg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_error_estimations_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_alldeg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_fem_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_deg"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_fem_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_M"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_mult_alldeg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_mult_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_M"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_mult_deg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_allM"><code class="docutils literal notranslate"><span class="pre">ErrorEstimations.run_mult_deg_allM()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.error_estimations.utils">enrichedfem.error_estimations.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.error_estimations.utils.get_solver_type"><code class="docutils literal notranslate"><span class="pre">get_solver_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.error_estimations">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">enrichedfem.error_estimations package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/enrichedfem.error_estimations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enrichedfem-error-estimations-package">
+<h1>enrichedfem.error_estimations package<a class="headerlink" href="#enrichedfem-error-estimations-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-enrichedfem.error_estimations.compare">
+<span id="enrichedfem-error-estimations-compare-module"></span><h2>enrichedfem.error_estimations.compare module<a class="headerlink" href="#module-enrichedfem.error_estimations.compare" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.error_estimations.compare.</span></span><span class="sig-name descname"><span class="pre">CompareMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_estimations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations" title="enrichedfem.error_estimations.error_estimations.ErrorEstimations"><span class="pre">ErrorEstimations</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>CompareMethods class.</p>
+<p>This class provides methods for comparing different error estimation
+methods (FEM, additive correction, multiplicative correction) and
+visualizing the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>error_estimations</strong> (<a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations" title="enrichedfem.error_estimations.error_estimations.ErrorEstimations"><em>ErrorEstimations</em></a>) – An instance of the
+<cite>ErrorEstimations</cite> class.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_Corr_vs_FEM_alldeg">
+<span class="sig-name descname"><span class="pre">plot_Corr_vs_FEM_alldeg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_Corr_vs_FEM_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Corr_vs_FEM_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Plot a comparison of the additive correction method against the FEM for all degrees.</p>
+<p>This method calls <cite>plot_method_vs_FEM_alldeg</cite> with “Corr” as the method
+argument, generating a log-log plot of the L2 error norm as a function
+of the number of vertices for both methods.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM">
+<span class="sig-name descname"><span class="pre">plot_Mult_vs_Add_vs_FEM_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Plot comparison of Mult, Add, and FEM for all degrees and all M values.</p>
+<p>This method iterates through all degrees specified in <cite>self.ee.tab_degree</cite>
+and calls the <cite>plot_Mult_vs_Add_vs_FEM_deg_allM</cite> method for each degree,
+generating a series of plots comparing the three methods for all
+specified M values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to use in the multiplicative error estimation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM">
+<span class="sig-name descname"><span class="pre">plot_Mult_vs_Add_vs_FEM_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Plot a comparison of Mult, Add, and FEM for a given degree and all M values.</p>
+<p>This method generates a log-log plot of the L2 error norm as a function
+of the number of vertices for the FEM, additive correction (“Add”), and
+multiplicative correction (“Mult”) methods, for a given degree and all
+specified M values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to use in the multiplicative error estimation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_M">
+<span class="sig-name descname"><span class="pre">plot_Mult_vs_FEM_alldeg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_Mult_vs_FEM_alldeg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_M" title="Link to this definition"></a></dt>
+<dd><p>Plot a comparison of the multiplicative correction method against the FEM for all degrees and a given M value.</p>
+<p>This method calls <cite>plot_method_vs_FEM_alldeg</cite> with “Mult” as the method
+argument and the specified M value and boundary condition flag,
+generating a log-log plot of the L2 error norm as a function of the
+number of vertices for both methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Defaults to 0.0.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_allM">
+<span class="sig-name descname"><span class="pre">plot_Mult_vs_FEM_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_Mult_vs_FEM_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Plot comparison of multiplicative correction against FEM for all degrees and M values.</p>
+<p>This method iterates through a list of M values and calls the
+<cite>plot_Mult_vs_FEM_alldeg_M</cite> method for each value, generating a series
+of plots comparing the multiplicative correction method against the FEM
+for all degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to use in the multiplicative error estimation.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.plot_method_vs_FEM_alldeg">
+<span class="sig-name descname"><span class="pre">plot_method_vs_FEM_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.plot_method_vs_FEM_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.plot_method_vs_FEM_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Plot a comparison of a given method against the FEM for all degrees.</p>
+<p>This method generates a log-log plot of the L2 error norm as a function
+of the number of vertices for the given method and the FEM, for all
+degrees specified in <cite>self.ee.tab_degree</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method (“Corr” or “Mult”).</p></li>
+<li><p><strong>M</strong> (<em>float</em>) – Lifting constant. Required for “Mult” method.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em>) – Whether to impose boundary conditions. Required for “Mult” method.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.save_tab_alldeg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.save_tab_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.save_tab_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save tables of errors and convergence factors for all degrees and M values.</p>
+<p>This method generates and saves tables containing the errors and
+convergence factors for each method (FEM, Corr, Mult) for all degrees
+and M values specified. The tables are saved as CSV and PNG files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethods.save_tab_deg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethods.save_tab_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethods.save_tab_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save a table of errors and convergence factors for a given degree and all M values.</p>
+<p>This method generates and saves a table containing the errors and
+convergence factors for each method (FEM, Corr, Mult) for a given
+degree and all specified M values. The table is saved as a CSV and
+PNG file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsDoFs">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.error_estimations.compare.</span></span><span class="sig-name descname"><span class="pre">CompareMethodsDoFs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_estimations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations" title="enrichedfem.error_estimations.error_estimations.ErrorEstimations"><span class="pre">ErrorEstimations</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsDoFs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize" title="enrichedfem.error_estimations.compare.CompareMethodsMeshSize"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompareMethodsMeshSize</span></code></a></p>
+<p>CompareMethodsDoFs class.</p>
+<p>This subclass of <cite>CompareMethodsMeshSize</cite> provides methods for comparing different error estimation
+methods (FEM, additive correction, multiplicative correction) and
+visualizing the results, with a focus on mesh size and precision, in particular
+the number of degrees of freedom (DoFs).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM">
+<span class="sig-name descname"><span class="pre">get_dofs_at_given_precision_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">given_precision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Get the number of degrees of freedom (DoFs) for each method at a given precision.</p>
+<p>This method calculates the required number of vertices (N) for each
+method to achieve a given precision, then determines the corresponding
+number of DoFs for each method using the calculated N values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>given_precision</strong> (<em>float</em>) – The target precision (L2 error norm).</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing two dictionaries: <cite>tab_N</cite> with the</dt><dd><p>estimated number of vertices (N) for each method, and
+<cite>tab_nb_dofs</cite> with the corresponding number of DoFs.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_total_parameters_of_net">
+<span class="sig-name descname"><span class="pre">get_total_parameters_of_net</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsDoFs.get_total_parameters_of_net"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_total_parameters_of_net" title="Link to this definition"></a></dt>
+<dd><p>Get the total number of parameters in the neural network.</p>
+<p>This method calculates and returns the total number of trainable
+parameters in the neural network used for the predicted solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>u_theta</strong> – The predicted solution object, containing the neural network.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The total number of parameters in the network.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_given_precisions_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save tables of DoFs and N for given precisions, all degrees, and all M values.</p>
+<p>This method calculates and saves tables showing the required number of
+vertices (N) and degrees of freedom (DoFs) for each method (FEM, Corr,
+Mult, and PINNs) to achieve a set of given precisions, for all degrees
+and all specified M values. It also calculates DoFs with network
+parameters and saves them. The tables are saved as CSV and PNG images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution, containing the neural network.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p></li>
+<li><p><strong>n_params</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_deg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_given_precisions_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_given_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.001,</span> <span class="pre">0.0001]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsDoFs.save_tab_given_precisions_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save tables of DoFs and N for given precisions, degree, and all M values.</p>
+<p>This method calculates and saves tables of the required number of
+vertices (N) and degrees of freedom (DoFs) for each method (FEM,
+Corr, Mult, and PINNs) to achieve a set of given precisions, for a
+specific degree and all specified M values. It also calculates DoFs
+with network parameters and saves them. The tables are saved as CSV
+and PNG images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution, containing the neural network.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p></li>
+<li><p><strong>tab_given_precision</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of target precisions. Defaults to [1e-3, 1e-4].</p></li>
+<li><p><strong>n_params</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing two pandas DataFrames: <cite>df</cite> with N and</dt><dd><p>DoFs, and <cite>df_dofs_nparams</cite> with DoFs including network
+parameters.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.error_estimations.compare.</span></span><span class="sig-name descname"><span class="pre">CompareMethodsMeshSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_estimations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations" title="enrichedfem.error_estimations.error_estimations.ErrorEstimations"><span class="pre">ErrorEstimations</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsMeshSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#enrichedfem.error_estimations.compare.CompareMethods" title="enrichedfem.error_estimations.compare.CompareMethods"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompareMethods</span></code></a></p>
+<p>CompareMethodsMeshSize class.</p>
+<p>This subclass of <cite>CompareMethods</cite> provides methods for comparing different error estimation
+methods (FEM, additive correction, multiplicative correction) and
+visualizing the results, with a focus on mesh size and precision.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__get_index">
+<span class="sig-name descname"><span class="pre">__get_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__get_index" title="Link to this definition"></a></dt>
+<dd><p>Get the index of the first element in ‘tab’ that is less than ‘val’.</p>
+<p>This is a private helper method used for linear interpolation.
+It performs a binary search-like operation to efficiently find the
+appropriate index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab</strong> (<em>list</em><em> or </em><em>numpy.ndarray</em>) – A sorted array of values.</p></li>
+<li><p><strong>val</strong> (<em>float</em>) – The target value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the first element in ‘tab’ less than ‘val’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__linear_interpolation_on_x">
+<span class="sig-name descname"><span class="pre">__linear_interpolation_on_x</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">given_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.__linear_interpolation_on_x" title="Link to this definition"></a></dt>
+<dd><p>Perform linear interpolation to estimate x for a given y.</p>
+<p>This method performs linear interpolation on a log-log scale to
+estimate the value of x for a given y, based on the provided table
+of x and y values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab</strong> (<em>numpy.ndarray</em>) – A 2D array where the first column represents x
+values and the second column represents y values.</p></li>
+<li><p><strong>given_y</strong> (<em>float</em>) – The target y value for which to estimate x.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated x value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_at_given_precision_deg_allM">
+<span class="sig-name descname"><span class="pre">get_N_at_given_precision_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">given_precision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsMeshSize.get_N_at_given_precision_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_at_given_precision_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Estimate the number of vertices (N) needed for each method to achieve a given precision.</p>
+<p>This method estimates the required mesh size (number of vertices) for
+each method (FEM, Corr, Mult) to achieve a given precision, for a
+given degree and optionally a range of M values (for the “Mult”
+method).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>given_precision</strong> (<em>float</em>) – The target precision (L2 error norm).</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing the estimated number of vertices (N)</dt><dd><p>for each method.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_deg_M">
+<span class="sig-name descname"><span class="pre">get_N_deg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">given_precision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsMeshSize.get_N_deg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_deg_M" title="Link to this definition"></a></dt>
+<dd><p>Estimate the number of vertices (N) needed to achieved a given precision for a given method.</p>
+<p>This method estimates the required mesh size (number of vertices) for
+a given method, degree, and optionally an M value (for the
+“Mult” method) to achieved a given precision, using linear interpolation on a log-log scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method (“FEM”, “Corr”, or “Mult”).</p></li>
+<li><p><strong>given_precision</strong> (<em>float</em>) – The target precision (L2 error norm).</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Required for “Mult” method. Defaults to None.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The estimated number of vertices (N).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_given_precisions_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save tables of required N for given precisions, all degrees, and all M values.</p>
+<p>This method calculates and saves tables showing the required number of
+vertices (N) for each method (FEM, Corr, Mult) to achieve a set of
+given precisions, for all degrees and all specified M values. The
+tables are saved as both CSV and PNG images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_deg_allM">
+<span class="sig-name descname"><span class="pre">save_tab_given_precisions_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_given_precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.001,</span> <span class="pre">0.0001]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/compare.html#CompareMethodsMeshSize.save_tab_given_precisions_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save a table of required N for given precisions, degree, and all M values.</p>
+<p>This method calculates and saves a table showing the required number of
+vertices (N) for each method (FEM, Corr, Mult) to achieve a set of
+given precisions, for a specific degree and all specified M values.
+The table is saved as both a CSV and a PNG image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” method. Defaults to None.</p></li>
+<li><p><strong>tab_given_precision</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of target precisions (L2 error norms). Defaults to [1e-3, 1e-4].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generated DataFrame containing the required N values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-enrichedfem.error_estimations.error_estimations">
+<span id="enrichedfem-error-estimations-error-estimations-module"></span><h2>enrichedfem.error_estimations.error_estimations module<a class="headerlink" href="#module-enrichedfem.error_estimations.error_estimations" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.error_estimations.error_estimations.</span></span><span class="sig-name descname"><span class="pre">ErrorEstimations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Error estimates class for the FEM method and enriched approaches.</p>
+<p>This class allows to run the error estimates for the FEM method and enriched approaches (additive and multiplicative corrections). The L2 error is computed for different degrees and number of vertices.
+The results are saved in csv files and can be plotted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_num</strong> (<em>int</em>) – Number of the parameter to consider</p></li>
+<li><p><strong>pb_considered</strong> (<em>Problem</em>) – Problem to consider</p></li>
+<li><p><strong>error_degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of the error space. Defaults to 4.</p></li>
+<li><p><strong>high_degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of the expression space for f. Defaults to 9.</p></li>
+<li><p><strong>save_fig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Save flag for the figures. Defaults to False.</p></li>
+<li><p><strong>plot_result</strong> (<em>bool</em><em>, </em><em>optional</em>) – Plot flag for the results. Defaults to False.</p></li>
+<li><p><strong>plot_mesh</strong> (<em>bool</em><em>, </em><em>optional</em>) – Plot flag for the mesh. Defaults to False.</p></li>
+<li><p><strong>tab_nb_vert</strong> (<em>list</em><em>, </em><em>optional</em>) – List of the number of vertices. Defaults to [2**i for i in range(4,9)].</p></li>
+<li><p><strong>tab_degree</strong> (<em>list</em><em>, </em><em>optional</em>) – List of the degrees. Defaults to [1,2,3].</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.__infos_from_problem">
+<span class="sig-name descname"><span class="pre">__infos_from_problem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.__infos_from_problem" title="Link to this definition"></a></dt>
+<dd><p>Extract problem information.</p>
+<p>This method extracts information about the problem, such as dimension,
+testcase, version, parameters, and solver type, from the
+<cite>pb_considered</cite> attribute and stores them as attributes of the class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.read_csv">
+<span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.read_csv" title="Link to this definition"></a></dt>
+<dd><p>Read a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_file</strong> – CSV file to read</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame, list of h values, list of error values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_alldeg">
+<span class="sig-name descname"><span class="pre">run_corr_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cvg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_corr_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run additive correction error estimates for all degrees.</p>
+<p>This method runs the error estimates using the additive correction
+method (“Corr”) for all degrees specified in <cite>self.tab_degree</cite>.
+It calls the <cite>run_error_estimations_alldeg</cite> method with the
+specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+<li><p><strong>plot_cvg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the convergence results. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_deg">
+<span class="sig-name descname"><span class="pre">run_corr_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_corr_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_corr_deg" title="Link to this definition"></a></dt>
+<dd><p>Run additive correction error estimates for a given degree.</p>
+<p>This method runs the error estimates using the additive correction
+method (“Corr”) for a given degree. It calls the
+<cite>run_error_estimations_deg</cite> method with the specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame, list of h values, and list</dt><dd><p>of error values.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_alldeg">
+<span class="sig-name descname"><span class="pre">run_error_estimations_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_error_estimations_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run error estimates for a given method and all degrees.</p>
+<p>This method runs the error estimates for the given method and all
+degrees specified in <cite>self.tab_degree</cite>. It saves the results to a CSV
+file and optionally plots the convergence results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method (“FEM”, “Corr”, or “Mult”).</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments. These may include:
+plot_cvg (bool): Whether to plot the convergence results.
+u_theta: Network prediction. Required for “Corr” and “Mult” methods.
+M (float): Lifting constant. Required for “Mult” method.
+impose_bc (bool): Required for “Mult” method.
+new_run (bool): Whether to force a new run even if a CSV file exists.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_deg">
+<span class="sig-name descname"><span class="pre">run_error_estimations_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_error_estimations_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_error_estimations_deg" title="Link to this definition"></a></dt>
+<dd><p>Run error estimates for a given method and degree.</p>
+<p>This method performs error estimates using the specified method
+(FEM, Corr, or Mult) for a given degree. It reads results from a CSV
+file if available, otherwise it runs the error estimation and saves
+the results to a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method (“FEM”, “Corr”, or “Mult”).</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em>) – Whether to force a new run even if a CSV file exists.</p></li>
+<li><p><strong>u_theta</strong> – Network prediction. Required for “Corr” and “Mult” methods.</p></li>
+<li><p><strong>M</strong> (<em>float</em>) – Lifting constant. Required for “Mult” method.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em>) – Required for “Mult” method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame, list of h values, and list</dt><dd><p>of error values.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_alldeg">
+<span class="sig-name descname"><span class="pre">run_fem_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cvg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_fem_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run FEM error estimates for all degrees.</p>
+<p>This method runs the error estimates using the FEM method for all
+degrees specified in <cite>self.tab_degree</cite>. It calls the
+<cite>run_error_estimations_alldeg</cite> method with the specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+<li><p><strong>plot_cvg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the convergence results. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_deg">
+<span class="sig-name descname"><span class="pre">run_fem_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_fem_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_fem_deg" title="Link to this definition"></a></dt>
+<dd><p>Run FEM error estimates for a given degree.</p>
+<p>This method runs the error estimates using the FEM method for a given
+degree. It calls the <cite>run_error_estimations_deg</cite> method with the
+specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame, list of h values, and list</dt><dd><p>of error values.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_M">
+<span class="sig-name descname"><span class="pre">run_mult_alldeg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cvg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_mult_alldeg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_M" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error estimates for all degrees and a given M value.</p>
+<p>This method runs the error estimates using the multiplicative correction
+method (“Mult”) for all degrees specified in <cite>self.tab_degree</cite> and a
+given M value. It calls the <cite>run_error_estimations_alldeg</cite> method
+with the specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Defaults to 0.0.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+<li><p><strong>plot_cvg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the convergence results. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_allM">
+<span class="sig-name descname"><span class="pre">run_mult_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cvg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_mult_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error estimates for all degrees and multiple M values.</p>
+<p>This method runs the error estimates using the multiplicative correction
+method (“Mult”) for all degrees specified in <cite>self.tab_degree</cite> and a
+range of M values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to use in the multiplicative error estimation.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+<li><p><strong>plot_cvg</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the convergence results. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_M">
+<span class="sig-name descname"><span class="pre">run_mult_deg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_mult_deg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_M" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error estimates for a given degree and M value.</p>
+<p>This method runs the error estimates using the multiplicative correction
+method (“Mult”) for a given degree and M value. It calls the
+<cite>run_error_estimations_deg</cite> method with the specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Defaults to 0.0.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame, list of h values, and list</dt><dd><p>of error values.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_allM">
+<span class="sig-name descname"><span class="pre">run_mult_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/error_estimations.html#ErrorEstimations.run_mult_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.error_estimations.ErrorEstimations.run_mult_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error estimates for a given degree and multiple M values.</p>
+<p>This method runs the error estimates using the multiplicative correction
+method (“Mult”) for a given degree and a range of M values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to use in the multiplicative error estimation.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run even if a CSV file exists. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-enrichedfem.error_estimations.utils">
+<span id="enrichedfem-error-estimations-utils-module"></span><h2>enrichedfem.error_estimations.utils module<a class="headerlink" href="#module-enrichedfem.error_estimations.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.error_estimations.utils.get_solver_type">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.error_estimations.utils.</span></span><span class="sig-name descname"><span class="pre">get_solver_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testcase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/error_estimations/utils.html#get_solver_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.error_estimations.utils.get_solver_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-enrichedfem.error_estimations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-enrichedfem.error_estimations" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="run_tests.html" class="btn btn-neutral float-left" title="Run Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enrichedfem.fenics_expressions.html" class="btn btn-neutral float-right" title="enrichedfem.fenics_expressions package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

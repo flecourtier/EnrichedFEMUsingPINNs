@@ -1,0 +1,935 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.solver_fem.FEMSolver &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.solver_fem.FEMSolver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.solver_fem.FEMSolver</h1><div class="highlight"><pre>
+<span></span><span class="n">print_time</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">relative_error</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">compute_H1norm</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1">###########</span>
+<span class="c1"># Imports #</span>
+<span class="c1">###########</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.fenics_expressions.fenics_expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_uex_expr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.solver_fem.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_utheta_fenics_onV</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfin</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">df</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">rc</span>
+
+<span class="c1"># rc(&#39;font&#39;, **{&#39;family&#39;: &#39;serif&#39;, &#39;serif&#39;: [&#39;Computer Modern&#39;]})</span>
+<span class="c1"># rc(&#39;text&#39;, usetex=True)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;ghost_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;shared_facet&quot;</span>
+<span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;form_compiler&quot;</span><span class="p">][</span><span class="s2">&quot;cpp_optimize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;form_compiler&quot;</span><span class="p">][</span><span class="s2">&quot;optimize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;allow_extrapolation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;form_compiler&quot;</span><span class="p">][</span><span class="s2">&quot;representation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uflacs&quot;</span>
+<span class="c1"># parameters[&quot;form_compiler&quot;][&quot;quadrature_degree&quot;] = 10</span>
+
+<span class="n">prm</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;krylov_solver&quot;</span><span class="p">]</span>
+<span class="n">prm</span><span class="p">[</span><span class="s2">&quot;absolute_tolerance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-13</span>
+<span class="n">prm</span><span class="p">[</span><span class="s2">&quot;relative_tolerance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-13</span>
+
+<span class="n">current</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="c1">#######</span>
+<span class="c1"># FEM #</span>
+<span class="c1">#######</span>
+
+<div class="viewcode-block" id="FEMSolver">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FEMSolver</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FEM solver.</span>
+
+<span class="sd">    This class sets up the FEM domain, solves the FEM system,</span>
+<span class="sd">    and computes the error between the FEM solution and the</span>
+<span class="sd">    analytical or reference solution.  It also includes the</span>
+<span class="sd">    enriched FEM methods (correction with addition and multiplication).</span>
+<span class="sd">    If needed, it can compute the reference solution and save it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        params (list): Sample of sets of parameters.</span>
+<span class="sd">        problem (Problem): Problem considered.</span>
+<span class="sd">        degree (int, optional): Degree of the finite element space. Defaults to 1.</span>
+<span class="sd">        error_degree (int, optional): Degree of the error space. Defaults to 4.</span>
+<span class="sd">        high_degree (int, optional): Degree of the expression space for f. Defaults to 9.</span>
+<span class="sd">        save_uref (str, optional): Directory to save reference solution. Defaults to None.</span>
+<span class="sd">        load_uref (bool, optional): Load flag for reference solution. Defaults to True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">problem</span><span class="p">,</span><span class="n">degree</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">error_degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">high_degree</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span><span class="n">save_uref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">load_uref</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># number of cells</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1"># list of 1 set of parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span> <span class="o">=</span> <span class="n">problem</span> <span class="c1"># problem considered</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">degree</span> <span class="o">=</span> <span class="n">degree</span> <span class="c1"># degree of the finite element space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_degree</span> <span class="o">=</span> <span class="n">error_degree</span> <span class="c1"># degree of the error space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span> <span class="o">=</span> <span class="n">high_degree</span> <span class="c1"># degree of the expression space for f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_uref</span> <span class="o">=</span> <span class="n">save_uref</span> <span class="c1"># directory to save results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># reference solution</span>
+        
+        <span class="c1"># To evaluate computational time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># To compute error (overrefined mesh)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_degree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_ex</span> <span class="o">=</span> <span class="mi">500</span> <span class="c1">#5*self.N</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dx_ex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_FEM_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_ex</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">error_degree</span><span class="p">)</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">h_ex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_ex</span><span class="o">.</span><span class="n">hmax</span><span class="p">()</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V_ex created with &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N_ex</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot; vertices and degree &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">error_degree</span><span class="p">,</span><span class="s2">&quot; : h_ex =&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">h_ex</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to generate V_ex: &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+            <span class="c1"># self.V_ex = FunctionSpace(self.mesh, &quot;CG&quot;, self.high_degree)</span>
+        
+        <span class="c1"># To create reference solution</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_uref</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_uref</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N_ref</span> <span class="o">=</span> <span class="mi">999</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error_ref</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_ref</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_FEM_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_ref</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">error_ref</span><span class="p">)</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V_ref created with &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N_ref</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot; vertices and degree &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">error_ref</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_uref</span> <span class="o">=</span> <span class="n">load_uref</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_uref</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">))]</span>
+            
+<div class="viewcode-block" id="FEMSolver._create_mesh">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._create_mesh">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nb_vert</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the mesh.</span>
+
+<span class="sd">        This method creates the mesh with the given number of vertices.</span>
+<span class="sd">        For non-rectangular domains, we consider a box containing the domain.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nb_vert (int): Number of vertices.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Mesh and computational time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>    </div>
+
+
+<div class="viewcode-block" id="FEMSolver._define_fem_system">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._define_fem_system">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define_fem_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">V_solve</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define the FEM system.</span>
+
+<span class="sd">        This method defines the FEM system for the given parameters,</span>
+<span class="sd">        trial function, test function, and function space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (list): List of parameters.</span>
+<span class="sd">            u (TrialFunction): Trial function.</span>
+<span class="sd">            v (TestFunction): Test function.</span>
+<span class="sd">            V_solve (FunctionSpace): Function space.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Bilinear and linear forms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver._define_corr_add_system">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._define_corr_add_system">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define_corr_add_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u_PINNs</span><span class="p">,</span> <span class="n">V_solve</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define the additive correction system.</span>
+
+<span class="sd">        This method defines the additive correction system for the given parameters,</span>
+<span class="sd">        trial function, test function, PINNs solution, and function space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (list): List of parameters.</span>
+<span class="sd">            u (TrialFunction): Trial function.</span>
+<span class="sd">            v (TestFunction): Test function.</span>
+<span class="sd">            u_PINNs (Function): PINNs solution.</span>
+<span class="sd">            V_solve (FunctionSpace): Function space.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Bilinear and linear forms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver._define_corr_mult_system">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._define_corr_mult_system">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_define_corr_mult_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u_PINNs</span><span class="p">,</span> <span class="n">V_solve</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">impose_bc</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define the multiplicative correction system.</span>
+
+<span class="sd">        This method defines the multiplicative correction system for the given parameters,</span>
+<span class="sd">        trial function, test function, PINNs solution, function space,</span>
+<span class="sd">        lifting constant, and boundary condition flag (weak or strong).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            params (list): List of parameters.</span>
+<span class="sd">            u (TrialFunction): Trial function.</span>
+<span class="sd">            v (TestFunction): Test function.</span>
+<span class="sd">            u_PINNs (Function): PINNs solution.</span>
+<span class="sd">            V_solve (FunctionSpace): Function space.</span>
+<span class="sd">            M (float): Lifting constant.</span>
+<span class="sd">            impose_bc (bool): Boundary condition flag. If True, strong BC. If False, weak BC.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Bilinear and linear forms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver.set_meshsize">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.set_meshsize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_meshsize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_cell</span><span class="p">,</span> <span class="n">plot_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the mesh size.</span>
+
+<span class="sd">        This method sets the mesh size with the given number of cells</span>
+<span class="sd">        and creates the associated finite element space.</span>
+<span class="sd">        It also plots the mesh if plot_mesh is True or saves the plot if filename is not None.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nb_cell (int): Number of cells.</span>
+<span class="sd">            plot_mesh (bool, optional): Plot the mesh. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">nb_cell</span> <span class="c1"># number of cells</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># To compute the solution with FEM (standard/correction)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_FEM_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span><span class="n">save_times</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">hmax</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V created with &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot; vertices and degree &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span><span class="s2">&quot; : h =&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V_theta</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V_theta created with &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot; vertices and degree &quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">plot_mesh</span> <span class="ow">or</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># to modify for 2D</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__plot_mesh</span><span class="p">(</span><span class="n">plot_mesh</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">__plot_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_mesh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the mesh.</span>
+
+<span class="sd">        This method plots the mesh and saves it to a file if a filename is provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            plot_mesh (bool, optional): Plot the mesh. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Mesh with nb_vert=&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">plot_mesh</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        
+<div class="viewcode-block" id="FEMSolver._create_FEM_domain">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._create_FEM_domain">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_FEM_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_vert</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">save_times</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the FEM domain.</span>
+
+<span class="sd">        This method creates the FEM domain with the given number of vertices and degree.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nb_vert (int): Number of vertices.</span>
+<span class="sd">            degree (int): Degree of the finite element space.</span>
+<span class="sd">            save_times (bool, optional): Save computational times. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Mesh, function space, and integration measure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>   
+        <span class="c1"># Construct a cartesian mesh with nb_vert-1 cells in each direction</span>
+        <span class="n">mesh</span><span class="p">,</span><span class="n">tps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mesh</span><span class="p">(</span><span class="n">nb_vert</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_times</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to generate mesh: &quot;</span><span class="p">,</span> <span class="n">tps</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;mesh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;mesh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;mesh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tps</span>
+        
+        <span class="n">V</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="n">degree</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Measure</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dx</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver.run_uref">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.run_uref">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_uref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the reference solution.</span>
+
+<span class="sd">        This method computes the reference solution for the given parameter index.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Function: Reference solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">u</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">)</span>
+        
+        <span class="c1"># Declaration of the variationnal problem</span>
+        <span class="n">A</span><span class="p">,</span><span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_fem_system</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">)</span>
+
+        <span class="c1"># Resolution of the linear system</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">sol</span><span class="o">.</span><span class="n">vector</span><span class="p">(),</span><span class="n">L</span><span class="p">,</span> <span class="s2">&quot;cg&quot;</span><span class="p">,</span><span class="s2">&quot;hypre_amg&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sol</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver.get_uref">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.get_uref">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_uref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the reference solution.</span>
+
+<span class="sd">        This method gets the reference solution for the given parameter index.</span>
+<span class="sd">        It loads the solution from a file if it exists and load_uref is True,</span>
+<span class="sd">        otherwise it computes the solution and saves it to a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Function: Reference solution interpolated on V_ex.</span>
+<span class="sd">        &quot;&quot;&quot;</span>       
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_uref</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Computing reference solution for parameter &quot;</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">u_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_uref</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">vct_u_ref</span> <span class="o">=</span> <span class="n">u_ref</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">get_local</span><span class="p">()</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">vct_u_ref</span><span class="p">)</span>  
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load reference solution for parameter &quot;</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">vct_u_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">u_ref</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ref</span><span class="p">)</span>
+            <span class="n">u_ref</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">vct_u_ref</span>
+            
+        <span class="n">u_ref_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ref</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">u_ref_Vex</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver._plot_results_fem">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._plot_results_fem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_results_fem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_ex_V</span><span class="p">,</span> <span class="n">sol_V</span><span class="p">,</span> <span class="n">V_solve</span><span class="p">,</span> <span class="n">plot_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the FEM results.</span>
+
+<span class="sd">        This method plots the FEM solution, the analytical solution, and the error.</span>
+<span class="sd">        It also saves the plots to a file if a filename is provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u_ex_V (Function): Analytical solution.</span>
+<span class="sd">            sol_V (Function): FEM solution.</span>
+<span class="sd">            V_solve (FunctionSpace): Function space.</span>
+<span class="sd">            plot_result (bool, optional): Plot the results. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># Définir les tailles pour les titres et les légendes</span>
+        <span class="n">title_size</span> <span class="o">=</span> <span class="mi">24</span>  <span class="c1"># Taille des titres</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">legend_size</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Taille des légendes</span>
+        
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sol_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u_h$&quot;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u_ex_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u$&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;FEM solution&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">legend_size</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">error_sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+            <span class="n">error_sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sol_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_sol</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|u-u_h|$&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;FEM error&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">legend_size</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">14</span>
+            
+            <span class="n">colormap</span> <span class="o">=</span> <span class="s2">&quot;jet&quot;</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u_ex_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Analytical solution </span><span class="se">\\</span><span class="s2"> $u$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sol_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2">FEM solution </span><span class="se">\\</span><span class="s2"> $u_h$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">error_sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+            <span class="n">error_sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sol_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_sol</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2">Error </span><span class="se">\\</span><span class="s2"> $|u-u_h|$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_rasterization_zorder</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">plot_result</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="FEMSolver.fem">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.fem">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">plot_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve the problem using the finite element method.</span>
+
+<span class="sd">        This method solves the problem for the given parameter index using the finite element method.</span>
+<span class="sd">        It computes the solution, the error, and optionally plots the results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+<span class="sd">            plot_result (bool, optional): Plot the results. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: FEM solution and L2 norm of the error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">u</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="c1"># Declaration of the variationnal problem</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>        
+        <span class="n">A</span><span class="p">,</span><span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_fem_system</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to assemble the matrix : &quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;assemble&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Resolution of the linear system</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">sol</span><span class="o">.</span><span class="n">vector</span><span class="p">(),</span><span class="n">L</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>                
+        
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to solve the system :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;solve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Compute the error</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+            <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_ex</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sol_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="n">norme_L2</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span> <span class="o">-</span> <span class="n">sol_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> 
+        <span class="k">if</span> <span class="n">compute_H1norm</span><span class="p">:</span>
+            <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">errornorm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">sol_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 (abs) = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+            <span class="n">norme_L2</span> <span class="o">=</span> <span class="n">norme_L2</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">compute_H1norm</span><span class="p">:</span>
+                <span class="n">relH1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+                <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">norme_H1</span> <span class="o">/</span> <span class="n">relH1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 (rel) = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>            
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to compute the error :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_fem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+        
+        <span class="k">if</span> <span class="n">plot_result</span> <span class="ow">or</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># to modify for 2D</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+                <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+                <span class="n">u_ex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">u_ex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">sol_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_results_fem</span><span class="p">(</span><span class="n">u_ex_Vex</span><span class="p">,</span> <span class="n">sol_Vex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span> <span class="n">norme_L2</span><span class="p">,</span> <span class="n">plot_result</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">sol</span><span class="p">,</span><span class="n">norme_L2</span></div>
+
+    
+<div class="viewcode-block" id="FEMSolver._plot_results_corr">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver._plot_results_corr">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_plot_results_corr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_ex_V</span><span class="p">,</span> <span class="n">C_ex_V</span><span class="p">,</span> <span class="n">C_tild_V</span><span class="p">,</span> <span class="n">sol_V</span><span class="p">,</span> <span class="n">V_solve</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">plot_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">impose_bc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the correction results.</span>
+
+<span class="sd">        This method plots the corrected solution, the analytical solution, the correction, and the errors.</span>
+<span class="sd">        It also saves the plots to a file if a filename is provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u_ex_V (Function): Analytical solution.</span>
+<span class="sd">            C_ex_V (Function): Analytical correction.</span>
+<span class="sd">            C_tild_V (Function): Computed correction.</span>
+<span class="sd">            sol_V (Function): Corrected solution.</span>
+<span class="sd">            V_solve (FunctionSpace): Function space.</span>
+<span class="sd">            type (str): Type of correction (&quot;Add&quot; or &quot;Mult&quot;).</span>
+<span class="sd">            plot_result (bool, optional): Plot the results. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+<span class="sd">            impose_bc (bool, optional): Whether boundary conditions are imposed strongly or weakly (for multiplicative correction). Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Add&quot;</span><span class="p">,</span><span class="s2">&quot;Mult&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">impose_bc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">supp</span> <span class="o">=</span> <span class="s2">&quot; (strong)&quot;</span> <span class="k">if</span> <span class="n">impose_bc</span> <span class="k">else</span> <span class="s2">&quot; (weak)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">supp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># Définir les tailles pour les titres et les légendes</span>
+        <span class="n">title_size</span> <span class="o">=</span> <span class="mi">24</span>  <span class="c1"># Taille des titres</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">legend_size</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Taille des légendes</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Add&quot;</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_tild_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$p_h^+$&quot;</span><span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_ex_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u-u_\theta$&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_tild_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$p_h^\times$&quot;</span><span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_ex_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u/u_\theta$&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2"> correction</span><span class="si">{</span><span class="n">supp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">legend_size</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Add&quot;</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sol_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u_h^+$&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sol_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u_h^\times$&quot;</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u_ex_V</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$u$&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2"> solution</span><span class="si">{</span><span class="n">supp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">legend_size</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Add&quot;</span><span class="p">:</span>
+                <span class="n">error_sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+                <span class="n">error_sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sol_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_sol</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|u-u_h^+|$&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">error_sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+                <span class="n">error_sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sol_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_sol</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$|u-u_h^\times|$&quot;</span><span class="p">)</span>
+                
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2"> error</span><span class="si">{</span><span class="n">supp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">legend_size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;Add&quot;</span>
+            <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">14</span>
+            
+            <span class="n">colormap</span> <span class="o">=</span> <span class="s2">&quot;jet&quot;</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+            
+            <span class="c1"># Solution</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u_ex_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Analytical solution </span><span class="se">\\</span><span class="s2"> $u$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sol_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Add solution </span><span class="se">\\</span><span class="s2"> $u_h^+$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">error_sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+            <span class="n">error_sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sol_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_sol</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Error </span><span class="se">\\</span><span class="s2"> $|u-u_h^+|$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="c1"># Correction</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_ex_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Analytical correction </span><span class="se">\\</span><span class="s2"> $u - u_\theta$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_tild_V</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Add correction </span><span class="se">\\</span><span class="s2"> $p_h^+$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+            <span class="n">error_C</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_solve</span><span class="p">)</span>
+            <span class="n">error_C</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">C_tild_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">C_ex_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">error_C</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colormap</span><span class="p">)</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{center}</span><span class="s2"> Error </span><span class="se">\\</span><span class="s2"> $|(u-u_\theta)-p_h^+|$ \end</span><span class="si">{center}</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">plot_result</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">set_rasterization_zorder</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;pdf&quot;</span><span class="p">)</span>
+            
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FEMSolver.pinns">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.pinns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pinns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">u_PINNs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the L2 norm of the error between the PINNs solution and the analytical solution.</span>
+
+<span class="sd">        This method computes the L2 norm of the error between the PINNs solution and the analytical solution</span>
+<span class="sd">        for the given parameter index.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+<span class="sd">            u_PINNs (Function): PINNs solution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: L2 norm of the error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">u_theta_Vex</span> <span class="o">=</span> <span class="n">get_utheta_fenics_onV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">u_PINNs</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+            <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_ex</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">norme_L2</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span> <span class="o">-</span> <span class="n">u_theta_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> 
+        <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+            <span class="n">norme_L2</span> <span class="o">=</span> <span class="n">norme_L2</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">norme_L2</span></div>
+
+        
+<div class="viewcode-block" id="FEMSolver.corr_add">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.corr_add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corr_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">u_PINNs</span><span class="p">,</span> <span class="n">plot_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve the problem using the additive correction method.</span>
+
+<span class="sd">        This method solves the problem for the given parameter index using the additive correction method.</span>
+<span class="sd">        It computes the solution, the correction, the error, and optionally plots the results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+<span class="sd">            u_PINNs (Function): PINNs solution.</span>
+<span class="sd">            plot_result (bool, optional): Plot the results. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Corrected solution, correction, and L2 norm of the error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">u</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="c1"># Declaration of the variationnal problem</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">A</span><span class="p">,</span><span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_corr_add_system</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to assemble the matrix : &quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;assemble&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Resolution of the linear system</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">C_tild</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">C_tild</span><span class="o">.</span><span class="n">vector</span><span class="p">(),</span><span class="n">L</span><span class="p">)</span>
+        
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">u_theta_V</span> <span class="o">=</span> <span class="n">get_utheta_fenics_onV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">u_PINNs</span><span class="p">)</span>      
+        <span class="n">sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">C_tild</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">+</span> <span class="n">u_theta_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to solve the system :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;solve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Compute the error</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">u_theta_Vex</span> <span class="o">=</span> <span class="n">get_utheta_fenics_onV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">u_PINNs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+            <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">C_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">C_tild</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="n">sol_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="n">sol_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">C_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:])</span><span class="o">+</span><span class="n">u_theta_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span>
+
+        
+        <span class="n">norme_L2</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span> <span class="o">-</span> <span class="n">sol_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> 
+        <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+            <span class="n">norme_L2</span> <span class="o">=</span> <span class="n">norme_L2</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">compute_H1norm</span><span class="p">:</span>
+            <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">errornorm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">sol_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+                <span class="n">relH1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+                <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">norme_H1</span> <span class="o">/</span> <span class="n">relH1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 (rel) = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to compute the error :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_add</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+        
+        <span class="k">if</span> <span class="n">plot_result</span> <span class="ow">or</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+                <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+                <span class="n">u_ex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">u_ex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">C_ex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+            <span class="n">C_ex_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">u_ex_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">-</span> <span class="n">u_theta_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_results_corr</span><span class="p">(</span><span class="n">u_ex_Vex</span><span class="p">,</span><span class="n">C_ex_Vex</span><span class="p">,</span><span class="n">C_Vex</span><span class="p">,</span><span class="n">sol_Vex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Add&quot;</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">sol</span><span class="p">,</span><span class="n">C_tild</span><span class="p">,</span><span class="n">norme_L2</span></div>
+
+
+<div class="viewcode-block" id="FEMSolver.corr_mult">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.FEMSolver.FEMSolver.corr_mult">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corr_mult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">u_PINNs</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">impose_bc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve the problem using the multiplicative correction method.</span>
+
+<span class="sd">        This method solves the problem for the given parameter index using the multiplicative correction method.</span>
+<span class="sd">        It computes the solution, the correction, the error, and optionally plots the results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i (int): Parameter index.</span>
+<span class="sd">            u_PINNs (Function): PINNs solution.</span>
+<span class="sd">            M (float, optional): Lifting constant. Defaults to 0.0.</span>
+<span class="sd">            impose_bc (bool, optional): Whether boundary conditions are imposed strongly or weakly. Defaults to True.</span>
+<span class="sd">            plot_result (bool, optional): Plot the results. Defaults to False.</span>
+<span class="sd">            filename (str, optional): Filename to save the plot. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: Corrected solution, correction, and L2 norm of the error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="n">u</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        
+        <span class="c1"># Declaration of the variationnal problem</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">A</span><span class="p">,</span><span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_corr_mult_system</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">impose_bc</span><span class="o">=</span><span class="n">impose_bc</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to assemble the matrix : &quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)][</span><span class="s2">&quot;assemble&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Resolution of the linear system</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">C_tild</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">C_tild</span><span class="o">.</span><span class="n">vector</span><span class="p">(),</span><span class="n">L</span><span class="p">)</span>
+        
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="n">u_theta_V</span> <span class="o">=</span> <span class="n">get_utheta_fenics_onV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">u_PINNs</span><span class="p">)</span>      
+        <span class="n">sol</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">C_tild</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">u_theta_V</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">+</span> <span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">M</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to solve the system :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)][</span><span class="s2">&quot;solve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+
+        <span class="c1"># Compute the error</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">u_theta_Vex</span> <span class="o">=</span> <span class="n">get_utheta_fenics_onV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">u_PINNs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">ana_sol</span><span class="p">:</span>
+            <span class="n">u_ex</span> <span class="o">=</span> <span class="n">get_uex_expr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">high_degree</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">pb_considered</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">)</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">uex_Vex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_uref</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">C_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">C_tild</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="n">sol_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+        <span class="n">sol_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">C_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">u_theta_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">+</span> <span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">M</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;on fait du mult&quot;</span><span class="p">)</span>
+        
+        <span class="n">norme_L2</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span> <span class="o">-</span> <span class="n">sol_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> 
+        <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+            <span class="n">norme_L2</span> <span class="o">=</span> <span class="n">norme_L2</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">assemble</span><span class="p">((((</span><span class="n">uex_Vex</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">compute_H1norm</span><span class="p">:</span>
+            <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">errornorm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">sol_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relative_error</span><span class="p">:</span>
+                <span class="n">relH1</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">uex_Vex</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s1">&#39;H1&#39;</span><span class="p">)</span>
+                <span class="n">norme_H1</span> <span class="o">=</span> <span class="n">norme_H1</span> <span class="o">/</span> <span class="n">relH1</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;norme_H1 (rel) = &quot;</span><span class="p">,</span><span class="n">norme_H1</span><span class="p">)</span>        
+        
+        <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to compute the error :&quot;</span><span class="p">,</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_corr_mult</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)][</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+        
+        <span class="k">if</span> <span class="n">plot_result</span> <span class="ow">or</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">pb_considered</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span> <span class="c1"># to modify for 2D</span>
+            <span class="n">u_ex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">u_ex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+            <span class="n">C_ex_Vex</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">)</span>
+            <span class="n">C_ex_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">u_ex_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:],</span> <span class="n">u_theta_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:],</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">u_ex_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">u_theta_Vex</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_results_corr</span><span class="p">(</span><span class="n">u_ex_Vex</span><span class="p">,</span><span class="n">C_ex_Vex</span><span class="p">,</span><span class="n">C_Vex</span><span class="p">,</span><span class="n">sol_Vex</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">V_ex</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;Mult&quot;</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span><span class="n">impose_bc</span><span class="o">=</span><span class="n">impose_bc</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">sol</span><span class="p">,</span><span class="n">C_tild</span><span class="p">,</span><span class="n">norme_L2</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

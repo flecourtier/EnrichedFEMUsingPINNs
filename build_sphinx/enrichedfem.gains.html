@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.gains package &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enrichedfem.geometry package" href="enrichedfem.geometry.html" />
+    <link rel="prev" title="enrichedfem.fenics_expressions package" href="enrichedfem.fenics_expressions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">enrichedfem.gains package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.gains.compare">enrichedfem.gains.compare module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.__compute_gains"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.__compute_gains()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.__read_errors"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.__read_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.create_dataframes_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.create_dataframes_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dferrors_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.create_dferrors_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.create_params_str"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.create_params_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.save_stats_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.save_stats_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.compare.CompareGainsMethods.save_stats_deg_allM"><code class="docutils literal notranslate"><span class="pre">CompareGainsMethods.save_stats_deg_allM()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.gains.gains">enrichedfem.gains.gains module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.__infos_from_problem"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.__infos_from_problem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.read_csv"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.read_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_alldeg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_corr_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_deg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_corr_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_alldeg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_errors_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_deg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_errors_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_alldeg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_fem_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_deg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_fem_deg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_M"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_mult_alldeg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_allM"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_mult_alldeg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_M"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_mult_deg_M()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_allM"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_mult_deg_allM()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_alldeg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_pinns_alldeg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_deg"><code class="docutils literal notranslate"><span class="pre">GainsEnhancedFEM.run_pinns_deg()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.gains">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">enrichedfem.gains package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/enrichedfem.gains.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enrichedfem-gains-package">
+<h1>enrichedfem.gains package<a class="headerlink" href="#enrichedfem-gains-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-enrichedfem.gains.compare">
+<span id="enrichedfem-gains-compare-module"></span><h2>enrichedfem.gains.compare module<a class="headerlink" href="#module-enrichedfem.gains.compare" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.gains.compare.</span></span><span class="sig-name descname"><span class="pre">CompareGainsMethods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gains_enhanced_fem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM" title="enrichedfem.gains.gains.GainsEnhancedFEM"><span class="pre">GainsEnhancedFEM</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Compare gains of enhanced FEM methods.</p>
+<p>This class compares the gains achieved by enhanced FEM methods (additive
+and multiplicative corrections) over standard FEM and PINNs. It reads
+error data from CSV files, computes gains, creates dataframes for errors
+and gains, and saves statistics about the gains.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gains_enhanced_fem</strong> (<a class="reference internal" href="#enrichedfem.gains.gains.GainsEnhancedFEM" title="enrichedfem.gains.gains.GainsEnhancedFEM"><em>GainsEnhancedFEM</em></a>) – An instance of the
+<cite>GainsEnhancedFEM</cite> class, containing the error data.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.__compute_gains">
+<span class="sig-name descname"><span class="pre">__compute_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_errors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.__compute_gains" title="Link to this definition"></a></dt>
+<dd><p>Compute gains of enhanced methods over FEM and PINNs.</p>
+<p>This method computes the gains of additive (“Corr”) and multiplicative
+(“Mult”) correction methods over standard FEM and PINNs, based on
+the errors provided in the input DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df_errors</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing the errors
+for each method, with “method” as a level in the columns
+MultiIndex.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing two dictionaries: <cite>tab_gains_overFEM</cite></dt><dd><p>with gains over FEM, and <cite>tab_gains_overPINNs</cite> with gains
+over PINNs.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.__read_errors">
+<span class="sig-name descname"><span class="pre">__read_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.__read_errors" title="Link to this definition"></a></dt>
+<dd><p>Read error data for different methods.</p>
+<p>This method reads error data from CSV files for FEM, PINNs, additive
+correction (“Corr”), and multiplicative correction (“Mult”) methods
+for a given degree and a list of M values. It raises
+FileNotFoundError if any of the required files are not found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a dictionary of error arrays for each</dt><dd><p>method and a list of mesh sizes (h).</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – If any of the required error files are not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_alldeg_allM">
+<span class="sig-name descname"><span class="pre">create_dataframes_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.create_dataframes_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Create DataFrames of errors and gains for all degrees and all M values.</p>
+<p>This method creates and saves DataFrames of errors and gains for all
+degrees specified in <cite>self.gef.tab_degree</cite> and all specified M values.
+It calls the <cite>create_dataframes_deg_allM</cite> method for each degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_deg_allM">
+<span class="sig-name descname"><span class="pre">create_dataframes_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.create_dataframes_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dataframes_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Create DataFrames of errors and gains for a given degree and all M values.</p>
+<p>This method creates two pandas DataFrames: one for errors and one
+for gains, for a given degree and all specified M values. The error
+DataFrame contains the L2 errors for each method (FEM, PINNs, Corr,
+Mult, Mult_weak), while the gains DataFrame contains the gains of
+enhanced methods over FEM and PINNs. Both DataFrames are saved to
+CSV files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame of gains.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.create_dferrors_deg_allM">
+<span class="sig-name descname"><span class="pre">create_dferrors_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.create_dferrors_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.create_dferrors_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Create a DataFrame of errors for a given degree and all M values.</p>
+<p>This method reads error data for different methods (FEM, PINNs,
+Corr, Mult, Mult_weak) from CSV files, and constructs a pandas
+DataFrame where each row represents a parameter sample and each
+column represents a method, mesh size, and mesh size (h). The DataFrame
+is then saved to a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame of errors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.create_params_str">
+<span class="sig-name descname"><span class="pre">create_params_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.create_params_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.create_params_str" title="Link to this definition"></a></dt>
+<dd><p>Create string representations of parameter sets.</p>
+<p>This method generates a list of strings, where each string represents
+a set of parameters used in the problem. The parameters are rounded
+to two decimal places and separated by commas within each string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of strings, each representing a parameter set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.save_stats_alldeg_allM">
+<span class="sig-name descname"><span class="pre">save_stats_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.save_stats_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.save_stats_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save statistics of gains for all degrees and all M values.</p>
+<p>This method computes and saves statistics (min, max, mean, std) of
+the gains of enhanced methods over FEM and PINNs for all degrees
+specified in <cite>self.gef.tab_degree</cite> and all specified M values. It
+calls the <cite>save_stats_deg_allM</cite> method for each degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.compare.CompareGainsMethods.save_stats_deg_allM">
+<span class="sig-name descname"><span class="pre">save_stats_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/compare.html#CompareGainsMethods.save_stats_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.compare.CompareGainsMethods.save_stats_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Save statistics of gains for a given degree and all M values.</p>
+<p>This method computes and saves statistics (min, max, mean, std) of the
+gains of enhanced methods (Corr, Mult, Mult_weak) over FEM and PINNs
+for a given degree and all specified M values. The statistics are
+saved as a CSV file and a PNG image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of M values to consider for the “Mult” methods. Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The DataFrame containing the rounded statistics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-enrichedfem.gains.gains">
+<span id="enrichedfem-gains-gains-module"></span><h2>enrichedfem.gains.gains module<a class="headerlink" href="#module-enrichedfem.gains.gains" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.gains.gains.</span></span><span class="sig-name descname"><span class="pre">GainsEnhancedFEM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Calculate and analyze the gains of enhanced FEM methods.</p>
+<p>This class calculates and analyzes the gains obtained by using enhanced
+FEM methods (additive and multiplicative corrections) compared to standard
+FEM and PINNs. It computes errors for different methods, degrees, and
+mesh sizes, and provides functionalities to save and analyze the results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_params</strong> (<em>int</em>) – The number of parameter samples to consider.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered.</p></li>
+<li><p><strong>repo_dir</strong> (<em>str</em>) – The repository directory. Defaults to “./”.</p></li>
+<li><p><strong>high_degree</strong> (<em>int</em>) – The highest degree of the finite element solution. Defaults to 10.</p></li>
+<li><p><strong>error_degree</strong> (<em>int</em>) – The degree of the error space. Defaults to 4.</p></li>
+<li><p><strong>tab_nb_vert</strong> (<em>list</em>) – A list of number of vertices to consider. Defaults to [20, 40].</p></li>
+<li><p><strong>tab_degree</strong> (<em>list</em>) – A list of degrees to consider. Defaults to [1, 2, 3].</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.__infos_from_problem">
+<span class="sig-name descname"><span class="pre">__infos_from_problem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.__infos_from_problem" title="Link to this definition"></a></dt>
+<dd><p>Extract problem information.</p>
+<p>This method extracts information about the problem, such as dimension,
+testcase, version, parameters, and solver type, from the
+<cite>pb_considered</cite> attribute and stores them as attributes of the class.
+It also generates random parameters within the problem’s parameter
+domain.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.read_csv">
+<span class="sig-name descname"><span class="pre">read_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.read_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.read_csv" title="Link to this definition"></a></dt>
+<dd><p>Read error data from a CSV file.</p>
+<p>This method reads error data from a CSV file generated by the
+<cite>run_errors_deg</cite> method. It extracts the mesh sizes (h), errors for
+each parameter sample, and number of vertices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_file</strong> (<em>str</em>) – The path to the CSV file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame, a list of mesh sizes (h),</dt><dd><p>and a NumPy array of errors for each parameter sample.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_alldeg">
+<span class="sig-name descname"><span class="pre">run_corr_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_corr_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run additive correction error calculations for all degrees.</p>
+<p>This method runs the error calculations for the additive correction
+method (“Corr”) for all degrees specified in <cite>self.tab_degree</cite>, using
+the <cite>run_errors_alldeg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_deg">
+<span class="sig-name descname"><span class="pre">run_corr_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_corr_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_corr_deg" title="Link to this definition"></a></dt>
+<dd><p>Run additive correction error calculations for a given degree.</p>
+<p>This method runs the error calculations for the additive correction
+method (“Corr”) for a given degree, using the <cite>run_errors_deg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the DataFrame, a list of mesh sizes (h), and a NumPy array of errors for each parameter sample.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_alldeg">
+<span class="sig-name descname"><span class="pre">run_errors_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_errors_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run error calculations for a given method and all degrees.</p>
+<p>This method calculates the L2 errors for a given method (FEM, PINNs,
+“Corr”, or “Mult”) and all degrees specified in <cite>self.tab_degree</cite>,
+for multiple parameter samples and mesh sizes. It calls the
+<cite>run_errors_deg</cite> method for each degree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method. Should be one of “FEM”, “PINNs”, “Corr”, or “Mult”.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments. These may include:
+new_run (bool): Whether to force a new run even if a CSV file exists. Defaults to False.
+u_theta: The predicted solution (required for “Corr” and “Mult”).
+M (float): Lifting constant (required for “Mult”).
+impose_bc (bool): Whether to impose boundary conditions (required for “Mult”).</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_deg">
+<span class="sig-name descname"><span class="pre">run_errors_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_errors_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_errors_deg" title="Link to this definition"></a></dt>
+<dd><p>Run error calculations for a given method and degree.</p>
+<p>This method calculates the L2 errors for a given method (FEM, PINNs,
+additive correction “Corr”, or multiplicative correction “Mult”) and
+degree, for sets of parameter and given mesh sizes. The results
+are saved to a CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – The error estimation method. Should be one of “FEM”, “PINNs”, “Corr”, or “Mult”.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments. These may include:
+new_run (bool): Whether to force a new run even if a CSV file exists. Defaults to False.
+u_theta: The predicted solution (required for “Corr” and “Mult”).
+M (float): Lifting constant (required for “Mult”).
+impose_bc (bool): Whether to impose boundary conditions (required for “Mult”).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the DataFrame of errors, a list of mesh</dt><dd><p>sizes (h), and a NumPy array of errors for each parameter sample.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_alldeg">
+<span class="sig-name descname"><span class="pre">run_fem_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_fem_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run FEM error calculations for all degrees.</p>
+<p>This method runs the error calculations for the standard FEM for all
+degrees specified in <cite>self.tab_degree</cite>, using the <cite>run_errors_alldeg</cite>
+method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_deg">
+<span class="sig-name descname"><span class="pre">run_fem_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_fem_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_fem_deg" title="Link to this definition"></a></dt>
+<dd><p>Run FEM error calculations for a given degree.</p>
+<p>This method runs the error calculations for the standard FEM for a
+given degree, using the <cite>run_errors_deg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the DataFrame, a list of mesh sizes (h), and a NumPy array of errors for each parameter sample.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_M">
+<span class="sig-name descname"><span class="pre">run_mult_alldeg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_mult_alldeg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_M" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error calculations for all degrees and a given M value.</p>
+<p>This method runs the error calculations for the multiplicative
+correction method (“Mult”) for all degrees specified in
+<cite>self.tab_degree</cite> and a given M value, using the <cite>run_errors_alldeg</cite>
+method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Defaults to 0.0.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_allM">
+<span class="sig-name descname"><span class="pre">run_mult_alldeg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_mult_alldeg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_alldeg_allM" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error calculations for all degrees and multiple M values.</p>
+<p>This method runs the error calculations for the multiplicative
+correction method (“Mult”) for all degrees specified in
+<cite>self.tab_degree</cite> and a list of M values. It calls the
+<cite>run_mult_alldeg_M</cite> method for each M value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to consider.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_M">
+<span class="sig-name descname"><span class="pre">run_mult_deg_M</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_mult_deg_M"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_M" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error calculations for a given degree and M value.</p>
+<p>This method runs the error calculations for the multiplicative
+correction method (“Mult”) for a given degree and M value, using the
+<cite>run_errors_deg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>M</strong> (<em>float</em><em>, </em><em>optional</em>) – Lifting constant. Defaults to 0.0.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the DataFrame, a list of mesh sizes (h), and a NumPy array of errors for each parameter sample.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_allM">
+<span class="sig-name descname"><span class="pre">run_mult_deg_allM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impose_bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_mult_deg_allM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_mult_deg_allM" title="Link to this definition"></a></dt>
+<dd><p>Run multiplicative correction error calculations for a given degree and multiple M values.</p>
+<p>This method runs the error calculations for the multiplicative
+correction method (“Mult”) for a given degree and a list of M values.
+It calls the <cite>run_mult_deg_M</cite> method for each M value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>tab_M</strong> (<em>list</em>) – A list of M values to consider.</p></li>
+<li><p><strong>impose_bc</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to impose boundary conditions. Defaults to True.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_alldeg">
+<span class="sig-name descname"><span class="pre">run_pinns_alldeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_pinns_alldeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_alldeg" title="Link to this definition"></a></dt>
+<dd><p>Run PINNs error calculations for all degrees.</p>
+<p>This method runs the error calculations for the PINNs method for all
+degrees specified in <cite>self.tab_degree</cite>, using the
+<cite>run_errors_alldeg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_deg">
+<span class="sig-name descname"><span class="pre">run_pinns_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/gains/gains.html#GainsEnhancedFEM.run_pinns_deg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.gains.gains.GainsEnhancedFEM.run_pinns_deg" title="Link to this definition"></a></dt>
+<dd><p>Run PINNs error calculations for a given degree.</p>
+<p>This method runs the error calculations for the PINNs method for a
+given degree, using the <cite>run_errors_deg</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element solution.</p></li>
+<li><p><strong>u_theta</strong> – The predicted solution from the PINNs model.</p></li>
+<li><p><strong>new_run</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to force a new run. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the DataFrame, a list of mesh sizes (h), and a NumPy array of errors for each parameter sample.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-enrichedfem.gains">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-enrichedfem.gains" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enrichedfem.fenics_expressions.html" class="btn btn-neutral float-left" title="enrichedfem.fenics_expressions package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enrichedfem.geometry.html" class="btn btn-neutral float-right" title="enrichedfem.geometry package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

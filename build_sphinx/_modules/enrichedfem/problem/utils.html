@@ -1,0 +1,268 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.problem.utils &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.problem.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.problem.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<div class="viewcode-block" id="create_tree">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.utils.create_tree">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_tree</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a directory tree from a given path.</span>
+
+<span class="sd">    This function takes a path string and creates all necessary directories</span>
+<span class="sd">    in the tree. It handles both absolute and relative paths.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): The path string representing the directory tree to create.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path_split</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;/&quot;</span><span class="p">:</span>
+        <span class="n">path_split</span> <span class="o">=</span> <span class="n">path_split</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">path_split</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">subdir</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_split</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">subdir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">subdir</span><span class="p">)</span></div>
+
+            
+<div class="viewcode-block" id="get_random_param">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.utils.get_random_param">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_random_param</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">parameter_domain</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a random parameter set within a specified domain.</span>
+
+<span class="sd">    This function generates a random parameter set based on the provided</span>
+<span class="sd">    parameter domain and an index &#39;i&#39;, which is used to seed the random</span>
+<span class="sd">    number generator. The generated parameters are rounded to two decimal places.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        i (int): An index used to seed the random number generator.</span>
+<span class="sd">        parameter_domain (list): A list of tuples, where each tuple defines</span>
+<span class="sd">            the lower and upper bounds for a parameter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list or numpy.ndarray: A list or array of random parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pick 1 random parameter at a given index</span>
+    <span class="n">dim_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameter_domain</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim_params</span><span class="p">):</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">parameter_domain</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">parameter_domain</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">param</span></div>
+
+
+<div class="viewcode-block" id="get_random_params">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.utils.get_random_params">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_random_params</span><span class="p">(</span><span class="n">n_params</span><span class="p">,</span> <span class="n">parameter_domain</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates multiple random parameter sets within a specified domain.</span>
+
+<span class="sd">    This function generates &#39;n_params&#39; random parameter sets, where each set</span>
+<span class="sd">    is drawn from a uniform distribution within the provided parameter domain.</span>
+<span class="sd">    The random number generator is seeded for reproducibility.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_params (int): The number of parameter sets to generate.</span>
+<span class="sd">        parameter_domain (list): A list of tuples, where each tuple defines</span>
+<span class="sd">            the lower and upper bounds for a parameter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        numpy.ndarray: A 2D array of random parameters, where each row</span>
+<span class="sd">            represents a parameter set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># pick n random parameters</span>
+    <span class="n">dim_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameter_domain</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim_params</span><span class="p">):</span>
+        <span class="n">parami</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">parameter_domain</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">parameter_domain</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_params</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parami</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">params</span></div>
+
+
+<div class="viewcode-block" id="select_param">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.utils.select_param">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">select_param</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">param_num</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Selects a parameter set for a given problem.</span>
+
+<span class="sd">    This function selects a parameter set based on the provided problem and</span>
+<span class="sd">    parameter number (`param_num`). It prioritizes using predefined parameter</span>
+<span class="sd">    sets from `problem.set_params` if available. Otherwise, it generates a</span>
+<span class="sd">    random parameter set within the problem&#39;s parameter domain. A specific</span>
+<span class="sd">    parameter set is hardcoded for `problem.testcase == 3` and `param_num == 3`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        problem: The problem object, which should have either a `set_params`</span>
+<span class="sd">            attribute or a `parameter_domain` attribute.</span>
+<span class="sd">        param_num (int): The index of the parameter set to select (1-based).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list or numpy.ndarray: The selected parameter set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">set_params</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">set_params</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">set_params</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="k">if</span> <span class="n">set_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">param_num</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">set_params</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;param_num=</span><span class="si">{</span><span class="n">param_num</span><span class="si">}</span><span class="s2"> should be less than </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">set_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">set_params</span><span class="p">[</span><span class="n">param_num</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parameter_domain</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">parameter_domain</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">get_random_param</span><span class="p">(</span><span class="n">param_num</span><span class="p">,</span><span class="n">parameter_domain</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">testcase</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">param_num</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ATTENTION : paramètre 3 choisi à la main&quot;</span><span class="p">)</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.46</span><span class="p">,</span><span class="mf">0.52</span><span class="p">,</span><span class="mf">0.12</span><span class="p">,</span><span class="mf">0.05</span><span class="p">]</span>
+        
+    <span class="k">return</span> <span class="n">param</span></div>
+
+
+<div class="viewcode-block" id="compute_slope">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.utils.compute_slope">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_slope</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">tab_nb_vert</span><span class="p">,</span> <span class="n">tab_err</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the slope between two points on a log-log plot.</span>
+
+<span class="sd">    This function calculates the slope of the line segment connecting two</span>
+<span class="sd">    points on a log-log plot, given by the i-th and (i-1)-th elements of</span>
+<span class="sd">    &#39;tab_nb_vert&#39; and &#39;tab_err&#39;. It also plots this segment and returns</span>
+<span class="sd">    the midpoint of the segment.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        i (int): The index of the point in &#39;tab_nb_vert&#39; and &#39;tab_err&#39;.</span>
+<span class="sd">        tab_nb_vert (list or numpy.ndarray): A list or array of x-coordinates.</span>
+<span class="sd">        tab_err (list or numpy.ndarray): A list or array of y-coordinates.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the computed slope and the midpoint of the</span>
+<span class="sd">            segment on the log-log plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="n">tab_nb_vert</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">tab_err</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="p">[</span><span class="n">tab_nb_vert</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">tab_err</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">third</span> <span class="o">=</span> <span class="p">[</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">tri_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">third</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">tri_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">third</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tri_x</span><span class="p">,</span> <span class="n">tri_y</span><span class="p">,</span> <span class="s2">&quot;k--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="n">slope</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="n">slope</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">vert_mid</span> <span class="o">=</span> <span class="p">[(</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">third</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="p">(</span><span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">third</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">slope</span><span class="p">,</span><span class="n">vert_mid</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

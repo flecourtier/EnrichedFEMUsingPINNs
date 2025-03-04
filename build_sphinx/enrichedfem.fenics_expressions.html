@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.fenics_expressions package &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enrichedfem.gains package" href="enrichedfem.gains.html" />
+    <link rel="prev" title="enrichedfem.error_estimations package" href="enrichedfem.error_estimations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">enrichedfem.fenics_expressions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.fenics_expressions.fenics_expressions">enrichedfem.fenics_expressions.fenics_expressions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr"><code class="docutils literal notranslate"><span class="pre">AnisotropyExpr</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr.eval"><code class="docutils literal notranslate"><span class="pre">AnisotropyExpr.eval()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.MyUserExpression22"><code class="docutils literal notranslate"><span class="pre">MyUserExpression22</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_expr_from_sympy"><code class="docutils literal notranslate"><span class="pre">get_expr_from_sympy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_f_expr"><code class="docutils literal notranslate"><span class="pre">get_f_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_g_expr"><code class="docutils literal notranslate"><span class="pre">get_g_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_gn_expr"><code class="docutils literal notranslate"><span class="pre">get_gn_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_gr_expr"><code class="docutils literal notranslate"><span class="pre">get_gr_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_h_ext_expr"><code class="docutils literal notranslate"><span class="pre">get_h_ext_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_h_int_expr"><code class="docutils literal notranslate"><span class="pre">get_h_int_expr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.get_uex_expr"><code class="docutils literal notranslate"><span class="pre">get_uex_expr()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-enrichedfem.fenics_expressions">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">enrichedfem.fenics_expressions package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/enrichedfem.fenics_expressions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enrichedfem-fenics-expressions-package">
+<h1>enrichedfem.fenics_expressions package<a class="headerlink" href="#enrichedfem-fenics-expressions-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-enrichedfem.fenics_expressions.fenics_expressions">
+<span id="enrichedfem-fenics-expressions-fenics-expressions-module"></span><h2>enrichedfem.fenics_expressions.fenics_expressions module<a class="headerlink" href="#module-enrichedfem.fenics_expressions.fenics_expressions" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">AnisotropyExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#AnisotropyExpr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#enrichedfem.fenics_expressions.fenics_expressions.MyUserExpression22" title="enrichedfem.fenics_expressions.fenics_expressions.MyUserExpression22"><code class="xref py py-class docutils literal notranslate"><span class="pre">MyUserExpression22</span></code></a></p>
+<p>FEniCS expression for an anisotropic diffusion matrix.</p>
+<p>This class represents a FEniCS expression for a 2x2 anisotropic diffusion
+matrix. It inherits from <cite>MyUserExpression22</cite> to handle JIT compilation
+and evaluation of the matrix at given spatial points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have an
+<cite>anisotropy_matrix</cite> method for defining the matrix symbolically.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#AnisotropyExpr.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.AnisotropyExpr.eval" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the anisotropy matrix at a given point.</p>
+<p>This method evaluates the 2x2 anisotropy matrix at a given spatial
+point <cite>x</cite> and stores the result in the <cite>value</cite> array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>numpy.ndarray</em>) – The array to store the evaluated matrix.</p></li>
+<li><p><strong>x</strong> (<em>tuple</em>) – The spatial coordinates of the point.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.MyUserExpression22">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">MyUserExpression22</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#MyUserExpression22"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.MyUserExpression22" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseExpression</span></code></p>
+<p>Custom FEniCS expression for 2x2 matrices.</p>
+<p>This class extends FEniCS’s <cite>BaseExpression</cite> to represent 2x2 matrix-valued
+expressions. It facilitates the definition and evaluation of such
+expressions within FEniCS, enabling JIT compilation for efficient
+computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_expr_from_sympy">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_expr_from_sympy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_expr_from_sympy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_expr_from_sympy" title="Link to this definition"></a></dt>
+<dd><p>Convert a symbolic function to a FEniCS expression.</p>
+<p>This function takes a symbolic function defined using SymPy and converts
+it into a FEniCS expression that can be used within FEniCS computations.
+It handles parameter substitution and conversion to C++ code for JIT compilation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>fct</strong> (<em>callable</em>) – The symbolic function to convert, which should take
+SymPy, spatial variables, and parameters as arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the input symbolic function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_f_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_f_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_f_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_f_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic source term to a FEniCS expression.</p>
+<p>This function converts the symbolic source term (<cite>f</cite>) of the considered
+problem to a FEniCS expression. It uses the <cite>get_expr_from_sympy</cite>
+function to perform the conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>f</cite> attribute representing the symbolic source term.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the source term.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_g_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_g_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_g_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_g_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic Dirichlet boundary condition to a FEniCS expression.</p>
+<p>This function converts the symbolic Dirichlet boundary condition (<cite>g</cite>) of
+the considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>g</cite> attribute representing the symbolic Dirichlet boundary
+condition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the Dirichlet boundary condition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_gn_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_gn_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_gn_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_gn_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic Neumann boundary condition to a FEniCS expression.</p>
+<p>This function converts the symbolic Neumann boundary condition (<cite>g</cite>) of
+the considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>g</cite> attribute representing the symbolic Neumann boundary
+condition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the Neumann boundary condition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_gr_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_gr_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_gr_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_gr_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic Robin boundary condition to a FEniCS expression.</p>
+<p>This function converts the symbolic Robin boundary condition (<cite>g</cite>) of
+the considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>g</cite> attribute representing the symbolic Robin boundary
+condition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the Robin boundary condition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_h_ext_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_h_ext_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_h_ext_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_h_ext_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic exterior boundary condition to a FEniCS expression.</p>
+<p>This function converts the symbolic exterior boundary condition
+(<cite>h_ext</cite>) of the considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion. Used in the donut problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>h_ext</cite> attribute representing the symbolic exterior
+boundary condition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the exterior boundary condition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_h_int_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_h_int_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_h_int_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_h_int_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic interior boundary condition to a FEniCS expression.</p>
+<p>This function converts the symbolic interior boundary condition
+(<cite>h_int</cite>) of the considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion. Used in the donut problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>h_int</cite> attribute representing the symbolic interior
+boundary condition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the interior boundary condition.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="enrichedfem.fenics_expressions.fenics_expressions.get_uex_expr">
+<span class="sig-prename descclassname"><span class="pre">enrichedfem.fenics_expressions.fenics_expressions.</span></span><span class="sig-name descname"><span class="pre">get_uex_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pb_considered</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/enrichedfem/fenics_expressions/fenics_expressions.html#get_uex_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#enrichedfem.fenics_expressions.fenics_expressions.get_uex_expr" title="Link to this definition"></a></dt>
+<dd><p>Convert the symbolic exact solution to a FEniCS expression.</p>
+<p>This function converts the symbolic exact solution (<cite>u_ex</cite>) of the
+considered problem to a FEniCS expression. It uses the
+<cite>get_expr_from_sympy</cite> function to perform the conversion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>list</em><em> or </em><em>tuple</em>) – The parameters of the problem.</p></li>
+<li><p><strong>degree</strong> (<em>int</em>) – The degree of the finite element.</p></li>
+<li><p><strong>domain</strong> (<em>dolfin.Mesh</em>) – The mesh of the problem.</p></li>
+<li><p><strong>pb_considered</strong> – The problem being considered, which should have a
+<cite>u_ex</cite> attribute representing the symbolic exact solution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The FEniCS expression corresponding to the exact solution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dolfin.Expression</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-enrichedfem.fenics_expressions">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-enrichedfem.fenics_expressions" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enrichedfem.error_estimations.html" class="btn btn-neutral float-left" title="enrichedfem.error_estimations package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enrichedfem.gains.html" class="btn btn-neutral float-right" title="enrichedfem.gains package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

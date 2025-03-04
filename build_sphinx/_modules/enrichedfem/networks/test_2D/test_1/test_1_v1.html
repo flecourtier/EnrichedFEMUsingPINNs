@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.networks.test_2D.test_1.test_1_v1 &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.networks.test_2D.test_1.test_1_v1</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.networks.test_2D.test_1.test_1_v1</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.nets.training_tools</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">training_tools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.pinns.pinn_losses</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pinn_losses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.pinns.pinn_x</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pinn_x</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.pinns.training_x</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">training_x</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.sampling.sampling_parameters</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sampling_parameters</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.sampling.sampling_pde</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sampling_pde</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scimba.sampling.uniform_sampling</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">uniform_sampling</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scimba.equations</span><span class="w"> </span><span class="kn">import</span> <span class="n">domain</span><span class="p">,</span> <span class="n">pdes</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.geometry.geometry_2D</span><span class="w"> </span><span class="kn">import</span> <span class="n">Square</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.problem.problem_2D</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestCase1</span>
+
+<span class="n">current</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">current_filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+
+<span class="n">current_testcase</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;test_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">current_version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_v&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;torch loaded; device is </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">set_default_dtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">set_default_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Poisson_2D">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Poisson_2D</span><span class="p">(</span><span class="n">pdes</span><span class="o">.</span><span class="n">AbstractPDEx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">TestCase1</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">current_version</span><span class="p">)</span>
+        
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Square</span><span class="p">)</span>
+        
+        <span class="n">space_domain</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">SpaceDomain</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">SquareDomain</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">))</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">nb_unknowns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">space_domain</span><span class="o">=</span><span class="n">space_domain</span><span class="p">,</span>
+            <span class="n">nb_parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">nb_parameters</span><span class="p">,</span>
+            <span class="n">parameter_domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">parameter_domain</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_derivative</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second_derivative</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Poisson_2D.make_data">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D.make_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_data</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Poisson_2D.bc_residual">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D.bc_residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bc_residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">u</span></div>
+
+
+<div class="viewcode-block" id="Poisson_2D.residual">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D.residual">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">residual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">()</span>
+        <span class="n">mu1</span><span class="p">,</span><span class="n">mu2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+        <span class="n">u_xx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s2">&quot;w_xx&quot;</span><span class="p">)</span>
+        <span class="n">u_yy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="s2">&quot;w_yy&quot;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">u_xx</span> <span class="o">+</span> <span class="n">u_yy</span> <span class="o">+</span> <span class="n">f</span></div>
+
+
+<div class="viewcode-block" id="Poisson_2D.post_processing">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D.post_processing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">()</span>
+        
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="n">x1</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">x1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">x2</span><span class="o">-</span><span class="n">a2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">b2</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">*</span><span class="n">w</span></div>
+
+    
+<div class="viewcode-block" id="Poisson_2D.reference_solution">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Poisson_2D.reference_solution">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reference_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">()</span>
+        <span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">u_ex</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">mu1</span><span class="p">,</span> <span class="n">mu2</span><span class="p">])</span></div>
+</div>
+
+    
+    <span class="c1"># def reference_solution_derivative(self, x, mu):</span>
+    <span class="c1">#     x1, x2 = x.get_coordinates()</span>
+    <span class="c1">#     mu1, mu2= self.get_parameters(mu)</span>
+    <span class="c1">#     return self.problem.du_ex_dx(torch, [x1, x2], [mu1, mu2])</span>
+
+    <span class="c1"># def reference_solution_second_derivative(self, x, mu):</span>
+    <span class="c1">#     x1, x2 = x.get_coordinates()</span>
+    <span class="c1">#     mu1, mu2= self.get_parameters(mu)</span>
+    <span class="c1">#     return self.problem.d2u_ex_dx2(torch, [x1, x2], [mu1, mu2])</span>
+
+
+
+<div class="viewcode-block" id="Run_laplacian2D">
+<a class="viewcode-back" href="../../../../../enrichedfem.networks.test_2D.test_1.html#enrichedfem.networks.test_2D.test_1.test_1_v1.Run_laplacian2D">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">Run_laplacian2D</span><span class="p">(</span><span class="n">pde</span><span class="p">,</span> <span class="n">bc_loss_bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_training</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">w_bc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">w_res</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+    <span class="n">x_sampler</span> <span class="o">=</span> <span class="n">sampling_pde</span><span class="o">.</span><span class="n">XSampler</span><span class="p">(</span><span class="n">pde</span><span class="o">=</span><span class="n">pde</span><span class="p">)</span>
+    <span class="n">mu_sampler</span> <span class="o">=</span> <span class="n">sampling_parameters</span><span class="o">.</span><span class="n">MuSampler</span><span class="p">(</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="n">uniform_sampling</span><span class="o">.</span><span class="n">UniformSampling</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">pde</span>
+    <span class="p">)</span>
+    <span class="n">sampler</span> <span class="o">=</span> <span class="n">sampling_pde</span><span class="o">.</span><span class="n">PdeXCartesianSampler</span><span class="p">(</span><span class="n">x_sampler</span><span class="p">,</span> <span class="n">mu_sampler</span><span class="p">)</span>
+
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">current</span> <span class="o">/</span> <span class="s2">&quot;networks&quot;</span> <span class="o">/</span> <span class="s2">&quot;test_2D&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;test_fe</span><span class="si">{</span><span class="n">current_testcase</span><span class="si">}</span><span class="s2">_v</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">.pth&quot;</span>
+
+    <span class="k">if</span> <span class="n">new_training</span><span class="p">:</span>
+        <span class="p">(</span>
+            <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+            <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">training_x</span><span class="o">.</span><span class="n">TrainerPINNSpace</span><span class="o">.</span><span class="n">FOLDER_FOR_SAVED_NETWORKS</span><span class="p">)</span>
+            <span class="o">/</span> <span class="n">file_name</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">tlayers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
+    <span class="n">network</span> <span class="o">=</span> <span class="n">pinn_x</span><span class="o">.</span><span class="n">MLP_x</span><span class="p">(</span><span class="n">pde</span><span class="o">=</span><span class="n">pde</span><span class="p">,</span> <span class="n">layer_sizes</span><span class="o">=</span><span class="n">tlayers</span><span class="p">,</span> <span class="n">activation_type</span><span class="o">=</span><span class="s2">&quot;sine&quot;</span><span class="p">)</span>
+    <span class="n">pinn</span> <span class="o">=</span> <span class="n">pinn_x</span><span class="o">.</span><span class="n">PINNx</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">pde</span><span class="p">)</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="n">pinn_losses</span><span class="o">.</span><span class="n">PinnLossesData</span><span class="p">(</span>
+        <span class="n">bc_loss_bool</span><span class="o">=</span><span class="n">bc_loss_bool</span><span class="p">,</span> <span class="n">w_res</span><span class="o">=</span><span class="n">w_res</span><span class="p">,</span> <span class="n">w_bc</span><span class="o">=</span><span class="n">w_bc</span>
+    <span class="p">)</span>
+    <span class="n">optimizers</span> <span class="o">=</span> <span class="n">training_tools</span><span class="o">.</span><span class="n">OptimizerData</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1.7e-2</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                                                <span class="n">switch_to_LBFGS</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                <span class="n">switch_to_LBFGS_at</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">training_x</span><span class="o">.</span><span class="n">TrainerPINNSpace</span><span class="p">(</span>
+        <span class="n">pde</span><span class="o">=</span><span class="n">pde</span><span class="p">,</span>
+        <span class="n">network</span><span class="o">=</span><span class="n">pinn</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
+        <span class="n">losses</span><span class="o">=</span><span class="n">losses</span><span class="p">,</span>
+        <span class="n">optimizers</span><span class="o">=</span><span class="n">optimizers</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bc_loss_bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">new_training</span><span class="p">:</span>
+            <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_collocation</span><span class="o">=</span><span class="mi">6000</span><span class="p">,</span> <span class="n">n_data</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">new_training</span><span class="p">:</span>
+            <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+                <span class="n">epochs</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">n_collocation</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">n_bc_collocation</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">n_data</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">current</span> <span class="o">/</span> <span class="s2">&quot;networks&quot;</span> <span class="o">/</span> <span class="s2">&quot;test_2D&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;test_fe</span><span class="si">{</span><span class="n">current_testcase</span><span class="si">}</span><span class="s2">_v</span><span class="si">{</span><span class="n">current_version</span><span class="si">}</span><span class="s2">.png&quot;</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">20000</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">reference_solution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+    <span class="c1"># trainer.plot_derivative_mu(n_visu=20000)</span>
+    
+    <span class="k">return</span> <span class="n">trainer</span><span class="p">,</span><span class="n">pinn</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Laplacien strong Bc on Square with nn</span>
+    
+    <span class="n">pde</span> <span class="o">=</span> <span class="n">Poisson_2D</span><span class="p">()</span>
+
+    <span class="n">Run_laplacian2D</span><span class="p">(</span><span class="n">pde</span><span class="p">,</span><span class="n">new_training</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

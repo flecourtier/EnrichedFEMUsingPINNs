@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.problem.problem_1D &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.problem.problem_1D</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.problem.problem_1D</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.geometry.geometry_1D</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line1</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfin</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+
+<div class="viewcode-block" id="TestCase1D">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1D">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCase1D</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for 1D test cases.</span>
+
+<span class="sd">    This class defines the common interface for all 1D test cases, including</span>
+<span class="sd">    properties for geometry, number of parameters, parameter domain, and</span>
+<span class="sd">    availability of an analytical solution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        testcase (int): The test case number.</span>
+<span class="sd">        version (int): The version number of the test case.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">testcase</span><span class="p">,</span><span class="n">version</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testcase</span> <span class="o">=</span> <span class="n">testcase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="nd">@property</span>
+        <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="nd">@property</span>
+        <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">nb_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="nd">@property</span>
+        <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">parameter_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="nd">@property</span>
+        <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">ana_sol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="TestCase1">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCase1</span><span class="p">(</span><span class="n">TestCase1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test case 1 for 1D problems.</span>
+
+<span class="sd">    This test case defines the 1D Poisson problem with Dirichlet BC with three parameters (alpha, beta, gamma)</span>
+<span class="sd">    and provides an analytical solution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        version (int): The version number of the test case. Defaults to 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">version</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Line1</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_parameters</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_domain</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ana_sol</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="TestCase1.u_ex">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1.u_ex">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">u_ex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exact solution u(x).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (alpha, beta, gamma).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the exact solution at the given point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">alpha</span><span class="p">,</span><span class="n">beta</span><span class="p">,</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="n">alpha</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">gamma</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">6.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCase1.du_ex_dx">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1.du_ex_dx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">du_ex_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;First derivative of the exact solution du/dx.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (alpha, beta, gamma).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the first derivative of the exact solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">alpha</span><span class="p">,</span><span class="n">beta</span><span class="p">,</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">4.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">beta</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">6.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">gamma</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">6.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCase1.d2u_ex_dx2">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1.d2u_ex_dx2">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">d2u_ex_dx2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Second derivative of the exact solution d^2u/dx^2.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (alpha, beta, gamma).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the second derivative of the exact solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCase1.f">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1.f">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source term f(x).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (alpha, beta, gamma).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the source term at the given point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">alpha</span><span class="p">,</span><span class="n">beta</span><span class="p">,</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">16.0</span><span class="o">*</span><span class="n">beta</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">36.0</span><span class="o">*</span><span class="n">gamma</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">6.0</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCase1.g">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase1.g">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dirichlet boundary condition g(x).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (alpha, beta, gamma).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the Dirichlet boundary condition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">0.0</span></div>
+</div>
+
+
+<div class="viewcode-block" id="TestCase2">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase2">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCase2</span><span class="p">(</span><span class="n">TestCase1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test case 2 for 1D problems.</span>
+
+<span class="sd">    This test case defines a 1D general elliptic system and convection-dominated regime with Dirichlet BC</span>
+<span class="sd">    with two parameters (r, Pe)</span>
+<span class="sd">    and provides an analytical solution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        version (int): The version number of the test case. Defaults to 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">version</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">Line1</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_parameters</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_domain</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ana_sol</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">40.0</span><span class="p">],[</span><span class="mf">1.5</span><span class="p">,</span><span class="mf">90.0</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="TestCase2.u_ex">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase2.u_ex">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">u_ex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exact solution u(x).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (r, Pe).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the exact solution at the given point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">r</span><span class="p">,</span><span class="n">Pe</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestCase2.du_ex_dx">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase2.du_ex_dx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">du_ex_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;First derivative of the exact solution du/dx.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (r, Pe).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the first derivative of the exact solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">r</span><span class="p">,</span><span class="n">Pe</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Pe</span><span class="o">*</span><span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TestCase2.d2u_ex_dx2">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase2.d2u_ex_dx2">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">d2u_ex_dx2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Second derivative of the exact solution d^2u/dx^2.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (r, Pe).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the second derivative of the exact solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xy</span>
+        <span class="n">r</span><span class="p">,</span><span class="n">Pe</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">Pe</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">pre</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Pe</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>      </div>
+
+
+<div class="viewcode-block" id="TestCase2.g">
+<a class="viewcode-back" href="../../../enrichedfem.problem.html#enrichedfem.problem.problem_1D.TestCase2.g">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dirichlet boundary condition g(x).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pre: The precision module (e.g., dolfin, numpy).</span>
+<span class="sd">            xy: The spatial coordinate(s).</span>
+<span class="sd">            mu: The parameter vector (r, Pe).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The value of the Dirichlet boundary condition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">0.0</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.solver_fem.utils &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.solver_fem.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.solver_fem.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dolfin</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">df</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scimba.equations.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpaceTensor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="get_test_sample_fromV">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.utils.get_test_sample_fromV">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_test_sample_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">):</span>
+    <span class="c1"># get coordinates of the dof</span>
+    <span class="n">XXYY</span> <span class="o">=</span> <span class="n">V_test</span><span class="o">.</span><span class="n">tabulate_dof_coordinates</span><span class="p">()</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">XXYY</span><span class="p">,</span><span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">SpaceTensor</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+
+    <span class="c1"># get parameters</span>
+    <span class="n">nb_params</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">XXYY</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">nb_params</span><span class="p">)</span>
+    <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">mu_test</span> <span class="o">=</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">*</span> <span class="n">ones</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">X_test</span><span class="p">,</span><span class="n">mu_test</span></div>
+
+
+<div class="viewcode-block" id="get_utheta_fenics_onV">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.utils.get_utheta_fenics_onV">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_utheta_fenics_onV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">):</span>
+    <span class="n">X_test</span><span class="p">,</span><span class="n">mu_test</span> <span class="o">=</span> <span class="n">get_test_sample_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">u_PINNs</span><span class="o">.</span><span class="n">setup_w_dict</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">mu_test</span><span class="p">)</span>
+    <span class="n">phi_tild</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    
+    <span class="n">u_theta</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_test</span><span class="p">)</span>
+    <span class="n">u_theta</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">phi_tild</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">u_theta</span></div>
+
+    
+<div class="viewcode-block" id="get_laputheta_fenics_fromV">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.utils.get_laputheta_fenics_fromV">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_laputheta_fenics_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">):</span>
+    <span class="n">X_test</span><span class="p">,</span><span class="n">mu_test</span> <span class="o">=</span> <span class="n">get_test_sample_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">u_PINNs</span><span class="o">.</span><span class="n">setup_w_dict</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">mu_test</span><span class="p">)</span>
+    <span class="n">u_PINNs</span><span class="o">.</span><span class="n">get_first_derivatives</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+    <span class="n">u_PINNs</span><span class="o">.</span><span class="n">get_second_derivatives</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+    
+    <span class="n">phi_tild_xx</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_xx&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">lap_phi_tild</span> <span class="o">=</span> <span class="n">phi_tild_xx</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">phi_tild_yy</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_yy&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">lap_phi_tild</span> <span class="o">=</span> <span class="n">phi_tild_xx</span> <span class="o">+</span> <span class="n">phi_tild_yy</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dim should be 1 or 2&quot;</span><span class="p">)</span>
+    
+    <span class="n">lapu_theta</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_test</span><span class="p">)</span>
+    <span class="n">lapu_theta</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">lap_phi_tild</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">lapu_theta</span></div>
+
+
+<div class="viewcode-block" id="get_gradutheta_fenics_fromV">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.utils.get_gradutheta_fenics_fromV">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_gradutheta_fenics_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">):</span>
+    <span class="n">X_test</span><span class="p">,</span><span class="n">mu_test</span> <span class="o">=</span> <span class="n">get_test_sample_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">u_PINNs</span><span class="o">.</span><span class="n">setup_w_dict</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">mu_test</span><span class="p">)</span>
+    <span class="n">u_PINNs</span><span class="o">.</span><span class="n">get_first_derivatives</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+    
+    <span class="n">phi_tild_x</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_x&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">phi_tild_y</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_y&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    
+    <span class="n">V_test_2D</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">V_test</span><span class="o">.</span><span class="n">mesh</span><span class="p">(),</span><span class="n">V_test</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">(),</span><span class="n">V_test</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">(),</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>
+    <span class="n">grad_utheta</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_test_2D</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">grad_utheta</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">phi_tild_x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># grad_utheta.sub(0).vector()[:] = phi_tild_x.copy()</span>
+        <span class="c1"># grad_utheta.sub(1).vector()[:] = phi_tild_y.copy()</span>
+        <span class="n">grad_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">grad_utheta</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+        <span class="n">grad_values</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_tild_x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">grad_values</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi_tild_y</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="n">grad_utheta</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">grad_values</span>
+    
+    <span class="k">return</span> <span class="n">grad_utheta</span></div>
+
+
+<div class="viewcode-block" id="get_divmatgradutheta_fenics_fromV">
+<a class="viewcode-back" href="../../../enrichedfem.solver_fem.html#enrichedfem.solver_fem.utils.get_divmatgradutheta_fenics_fromV">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_divmatgradutheta_fenics_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">,</span><span class="n">u_PINNs</span><span class="p">,</span><span class="n">anisotropy_matrix</span><span class="p">):</span>
+    <span class="n">X_test</span><span class="p">,</span><span class="n">mu_test</span> <span class="o">=</span> <span class="n">get_test_sample_fromV</span><span class="p">(</span><span class="n">V_test</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">u_PINNs</span><span class="o">.</span><span class="n">setup_w_dict</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">mu_test</span><span class="p">)</span>
+    <span class="n">u_PINNs</span><span class="o">.</span><span class="n">get_first_derivatives</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span>
+    
+    <span class="n">phi_tild_x</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_x&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">phi_tild_y</span> <span class="o">=</span> <span class="n">pred</span><span class="p">[</span><span class="s2">&quot;w_y&quot;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="n">m00</span><span class="p">,</span><span class="n">m01</span><span class="p">,</span><span class="n">m10</span><span class="p">,</span><span class="n">m11</span> <span class="o">=</span> <span class="n">anisotropy_matrix</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span><span class="n">X_test</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="n">matgrad_x</span> <span class="o">=</span> <span class="n">m00</span> <span class="o">*</span> <span class="n">phi_tild_x</span> <span class="o">+</span> <span class="n">m01</span> <span class="o">*</span> <span class="n">phi_tild_y</span>
+    <span class="n">matgrad_y</span> <span class="o">=</span> <span class="n">m10</span> <span class="o">*</span> <span class="n">phi_tild_x</span> <span class="o">+</span> <span class="n">m11</span> <span class="o">*</span> <span class="n">phi_tild_y</span>
+    
+    <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">matgrad_x</span><span class="p">)</span>
+    <span class="n">mat_grad_xx</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">matgrad_x</span><span class="p">,</span> <span class="n">X_test</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="n">ones</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">matgrad_y</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span><span class="n">mat_grad_yy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">matgrad_y</span><span class="p">,</span> <span class="n">X_test</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    
+    <span class="n">divmatgradphitild</span> <span class="o">=</span> <span class="p">(</span><span class="n">mat_grad_xx</span> <span class="o">+</span> <span class="n">mat_grad_yy</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    
+    <span class="n">divmatgradutheta</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_test</span><span class="p">)</span>
+    <span class="n">divmatgradutheta</span><span class="o">.</span><span class="n">vector</span><span class="p">()[:]</span> <span class="o">=</span> <span class="n">divmatgradphitild</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">divmatgradutheta</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

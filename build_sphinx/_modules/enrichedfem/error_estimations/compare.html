@@ -1,0 +1,872 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enrichedfem.error_estimations.compare &mdash; EnrichedFEM 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            EnrichedFEM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Run tests:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../run_tests.html">Run Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.error_estimations.html">enrichedfem.error_estimations package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.fenics_expressions.html">enrichedfem.fenics_expressions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.gains.html">enrichedfem.gains package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.geometry.html">enrichedfem.geometry package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.networks.html">enrichedfem.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.problem.html">enrichedfem.problem package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../enrichedfem.solver_fem.html">enrichedfem.solver_fem package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">EnrichedFEM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">enrichedfem.error_estimations.compare</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for enrichedfem.error_estimations.compare</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataframe_image</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dfi</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enrichedfem.error_estimations.error_estimations</span><span class="w"> </span><span class="kn">import</span> <span class="n">ErrorEstimations</span>
+
+<div class="viewcode-block" id="CompareMethods">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompareMethods</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CompareMethods class.</span>
+
+<span class="sd">    This class provides methods for comparing different error estimation</span>
+<span class="sd">    methods (FEM, additive correction, multiplicative correction) and</span>
+<span class="sd">    visualizing the results.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        error_estimations (ErrorEstimations): An instance of the</span>
+<span class="sd">            `ErrorEstimations` class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">error_estimations</span><span class="p">:</span><span class="n">ErrorEstimations</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ee</span> <span class="o">=</span> <span class="n">error_estimations</span>
+        
+    <span class="c1">#########</span>
+    <span class="c1"># Plots #</span>
+    <span class="c1">#########</span>
+
+<div class="viewcode-block" id="CompareMethods.plot_method_vs_FEM_alldeg">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_method_vs_FEM_alldeg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_method_vs_FEM_alldeg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a comparison of a given method against the FEM for all degrees.</span>
+
+<span class="sd">        This method generates a log-log plot of the L2 error norm as a function</span>
+<span class="sd">        of the number of vertices for the given method and the FEM, for all</span>
+<span class="sd">        degrees specified in `self.ee.tab_degree`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (str): The error estimation method (&quot;Corr&quot; or &quot;Mult&quot;).</span>
+<span class="sd">            M (float): Lifting constant. Required for &quot;Mult&quot; method.</span>
+<span class="sd">            impose_bc (bool): Whether to impose boundary conditions. Required for &quot;Mult&quot; method.</span>
+
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Corr&quot;</span><span class="p">,</span><span class="s2">&quot;Mult&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;method=</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> can&#39;t be compared with FEM&quot;</span>  
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s1">&#39;M&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">&#39;impose_bc&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;M and impose_bc are required for </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">)</span>
+            <span class="n">impose_bc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;impose_bc&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="s1">&#39;M&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;impose_bc&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;M and impose_bc are not required for </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="c1"># plot FEM vs method error (L2 norm) as a function of h for all degrees</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">df_FEM</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span><span class="p">,</span> <span class="n">df_FEM</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;+-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;FEM P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FEM P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+                    <span class="n">csv_file</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">csv_file</span> <span class="o">+=</span> <span class="s1">&#39;_weak&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">impose_bc</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">csv_file</span> <span class="o">+=</span> <span class="s2">&quot;.csv&quot;</span>
+                <span class="n">df_method</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span><span class="p">,</span> <span class="n">df_method</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;.--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;(weak) &quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">impose_bc</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1"> not found (M=</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">minor</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;L2 norm&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;FEM + </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1"> v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1"> param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">fig_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM-</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">.png&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;_weak&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">impose_bc</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;FEM + </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1"> v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1"> param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> (M=</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="n">fig_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM-</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_M</span><span class="si">{</span><span class="n">M</span><span class="si">}{</span><span class="nb">type</span><span class="si">}</span><span class="s1">.png&#39;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fig_filename</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="CompareMethods.plot_Corr_vs_FEM_alldeg">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_Corr_vs_FEM_alldeg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_Corr_vs_FEM_alldeg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a comparison of the additive correction method against the FEM for all degrees.</span>
+
+<span class="sd">        This method calls `plot_method_vs_FEM_alldeg` with &quot;Corr&quot; as the method</span>
+<span class="sd">        argument, generating a log-log plot of the L2 error norm as a function</span>
+<span class="sd">        of the number of vertices for both methods.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_method_vs_FEM_alldeg</span><span class="p">(</span><span class="s2">&quot;Corr&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CompareMethods.plot_Mult_vs_FEM_alldeg_M">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_M">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_Mult_vs_FEM_alldeg_M</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">impose_bc</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a comparison of the multiplicative correction method against the FEM for all degrees and a given M value.</span>
+
+<span class="sd">        This method calls `plot_method_vs_FEM_alldeg` with &quot;Mult&quot; as the method</span>
+<span class="sd">        argument and the specified M value and boundary condition flag,</span>
+<span class="sd">        generating a log-log plot of the L2 error norm as a function of the</span>
+<span class="sd">        number of vertices for both methods.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            M (float, optional): Lifting constant. Defaults to 0.0.</span>
+<span class="sd">            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_method_vs_FEM_alldeg</span><span class="p">(</span><span class="s2">&quot;Mult&quot;</span><span class="p">,</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span><span class="n">impose_bc</span><span class="o">=</span><span class="n">impose_bc</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CompareMethods.plot_Mult_vs_FEM_alldeg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_FEM_alldeg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_Mult_vs_FEM_alldeg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab_M</span><span class="p">,</span> <span class="n">impose_bc</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot comparison of multiplicative correction against FEM for all degrees and M values.</span>
+
+<span class="sd">        This method iterates through a list of M values and calls the</span>
+<span class="sd">        `plot_Mult_vs_FEM_alldeg_M` method for each value, generating a series</span>
+<span class="sd">        of plots comparing the multiplicative correction method against the FEM</span>
+<span class="sd">        for all degrees.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab_M (list): A list of M values to use in the multiplicative error estimation.</span>
+<span class="sd">            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">tab_M</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_Mult_vs_FEM_alldeg_M</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span><span class="n">impose_bc</span><span class="o">=</span><span class="n">impose_bc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_Mult_vs_Add_vs_FEM_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a comparison of Mult, Add, and FEM for a given degree and all M values.</span>
+
+<span class="sd">        This method generates a log-log plot of the L2 error norm as a function</span>
+<span class="sd">        of the number of vertices for the FEM, additive correction (&quot;Add&quot;), and</span>
+<span class="sd">        multiplicative correction (&quot;Mult&quot;) methods, for a given degree and all</span>
+<span class="sd">        specified M values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list): A list of M values to use in the multiplicative error estimation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+        <span class="n">df_FEM</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># plot FEM error (L2 norm) as a function of h</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.csv&#39;</span> 
+            <span class="n">df_FEM</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">df_FEM</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">],</span> <span class="n">df_FEM</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;+-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;FEM P&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">degree</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FEM P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+        
+        <span class="n">df_Add</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>    
+            <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Corr_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+            <span class="n">df_Add</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">df_Add</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">],</span> <span class="n">df_Add</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;.--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Add P&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">degree</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Add P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+        
+        <span class="n">df_Mult</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># plot Mult error (L2 norm) as a function of h</span>
+        <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">tab_M</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Mult_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">df_Mult</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">df_Mult</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">],</span> <span class="n">df_Mult</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;.--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mult_s P&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; M = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mult strong P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Mult_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">_weak.csv&#39;</span>
+                <span class="n">df_Mult</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">df_Mult</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">],</span> <span class="n">df_Mult</span><span class="p">[</span><span class="s1">&#39;err&#39;</span><span class="p">],</span> <span class="s2">&quot;.--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mult_w P&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; M = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mult weak P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+                
+        <span class="c1"># si une des dataframe existe</span>
+        <span class="k">if</span> <span class="n">df_FEM</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">df_Add</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">df_Mult</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>   
+            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">df_FEM</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">],</span> <span class="n">df_FEM</span><span class="p">[</span><span class="s1">&#39;nb_vert&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">minor</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;L2 norm&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FEM + Add + Mult case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1"> v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1"> param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1"> deg</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM-Add-Mult_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No data found for param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1"> deg</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.plot_Mult_vs_Add_vs_FEM_alldeg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_Mult_vs_Add_vs_FEM_alldeg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab_M</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot comparison of Mult, Add, and FEM for all degrees and all M values.</span>
+
+<span class="sd">        This method iterates through all degrees specified in `self.ee.tab_degree`</span>
+<span class="sd">        and calls the `plot_Mult_vs_Add_vs_FEM_deg_allM` method for each degree,</span>
+<span class="sd">        generating a series of plots comparing the three methods for all</span>
+<span class="sd">        specified M values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab_M (list): A list of M values to use in the multiplicative error estimation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_Mult_vs_Add_vs_FEM_deg_allM</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">)</span></div>
+
+        
+    <span class="c1">##########</span>
+    <span class="c1"># Tables #</span>
+    <span class="c1">##########</span>
+    
+<div class="viewcode-block" id="CompareMethods.save_tab_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.save_tab_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save a table of errors and convergence factors for a given degree and all M values.</span>
+
+<span class="sd">        This method generates and saves a table containing the errors and</span>
+<span class="sd">        convergence factors for each method (FEM, Corr, Mult) for a given</span>
+<span class="sd">        degree and all specified M values. The table is saved as a CSV and</span>
+<span class="sd">        PNG file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tab_vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">iterables</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;FEM_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.csv&#39;</span> 
+            <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">tab_err_FEM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+            <span class="n">tab_err_FEM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_err_FEM</span><span class="p">)</span>
+            <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_err_FEM</span><span class="p">)</span>
+            <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;FEM&quot;</span><span class="p">,</span><span class="s2">&quot;error&quot;</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;FEM P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Corr_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+            <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">tab_err_Add</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+            <span class="n">tab_err_Add</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_err_Add</span><span class="p">)</span>
+            <span class="n">facteurs_Add</span> <span class="o">=</span> <span class="n">tab_err_FEM</span><span class="o">/</span><span class="n">tab_err_Add</span>
+            
+            <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_err_Add</span><span class="p">)</span>
+            <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facteurs_Add</span><span class="p">)</span>
+            <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Corr&quot;</span><span class="p">,</span><span class="s2">&quot;error&quot;</span><span class="p">))</span>
+            <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Corr&quot;</span><span class="p">,</span><span class="s2">&quot;facteurs&quot;</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Corr P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+            
+        <span class="c1"># plot Mult error (L2 norm) as a function of h</span>
+        <span class="k">if</span> <span class="n">tab_M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">tab_M</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Mult_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+                    <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">tab_err_Mult</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                    <span class="n">tab_err_Mult</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_err_Mult</span><span class="p">)</span>
+                    <span class="n">facteurs_Mult</span> <span class="o">=</span> <span class="n">tab_err_FEM</span><span class="o">/</span><span class="n">tab_err_Mult</span>
+                    <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_err_Mult</span><span class="p">)</span>
+                    <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facteurs_Mult</span><span class="p">)</span>
+                    <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Mult&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">),</span><span class="s2">&quot;error&quot;</span><span class="p">))</span>
+                    <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Mult&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">),</span><span class="s2">&quot;facteurs&quot;</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mult strong P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+                
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Mult_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1">_weak.csv&#39;</span>
+                    <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">tab_err_Mult</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+                    <span class="n">tab_err_Mult</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_err_Mult</span><span class="p">)</span>
+                    <span class="n">facteurs_Mult</span> <span class="o">=</span> <span class="n">tab_err_FEM</span><span class="o">/</span><span class="n">tab_err_Mult</span>
+                    <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_err_Mult</span><span class="p">)</span>
+                    <span class="n">tab_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">facteurs_Mult</span><span class="p">)</span>
+                    <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Mult&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;w&quot;</span><span class="p">,</span><span class="s2">&quot;error&quot;</span><span class="p">))</span>
+                    <span class="n">iterables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Mult&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;w&quot;</span><span class="p">,</span><span class="s2">&quot;facteurs&quot;</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mult weak P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">iterables</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">])</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tab_vals</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># Appliquer des formats spécifiques en fonction du type</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">custom_formatting</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="c1"># Appliquer un format spécifique pour les erreurs (notation scientifique)</span>
+            <span class="n">error_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">error_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">error_cols</span><span class="p">]</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Arrondir les facteurs à l&#39;entier le plus proche</span>
+            <span class="n">factor_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;facteurs&#39;</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">factor_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">factor_cols</span><span class="p">]</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">df</span>
+        
+        <span class="c1"># Si le DataFrame est vide, ne pas le sauvegarder</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+
+            <span class="c1"># Appliquer la fonction de mise en forme</span>
+            <span class="n">formatted_df</span> <span class="o">=</span> <span class="n">custom_formatting</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            
+            <span class="c1"># Sauvegarder le DataFrame formaté au format CSV et PNG</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;Tab_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">formatted_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+            <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+            <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+            <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">formatted_df</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CompareMethods.save_tab_alldeg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethods.save_tab_alldeg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_alldeg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save tables of errors and convergence factors for all degrees and M values.</span>
+
+<span class="sd">        This method generates and saves tables containing the errors and</span>
+<span class="sd">        convergence factors for each method (FEM, Corr, Mult) for all degrees</span>
+<span class="sd">        and M values specified. The tables are saved as CSV and PNG files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_tab_deg_allM</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">)</span></div>
+</div>
+
+            
+<div class="viewcode-block" id="CompareMethodsMeshSize">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsMeshSize">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompareMethodsMeshSize</span><span class="p">(</span><span class="n">CompareMethods</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CompareMethodsMeshSize class.</span>
+
+<span class="sd">    This subclass of `CompareMethods` provides methods for comparing different error estimation</span>
+<span class="sd">    methods (FEM, additive correction, multiplicative correction) and</span>
+<span class="sd">    visualizing the results, with a focus on mesh size and precision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the index of the first element in &#39;tab&#39; that is less than &#39;val&#39;.</span>
+
+<span class="sd">        This is a private helper method used for linear interpolation.</span>
+<span class="sd">        It performs a binary search-like operation to efficiently find the</span>
+<span class="sd">        appropriate index.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab (list or numpy.ndarray): A sorted array of values.</span>
+<span class="sd">            val (float): The target value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The index of the first element in &#39;tab&#39; less than &#39;val&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="n">tab</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">tab</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="n">tab</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tab</span> <span class="o">&lt;</span> <span class="n">val</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">__linear_interpolation_on_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="p">,</span> <span class="n">given_y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform linear interpolation to estimate x for a given y.</span>
+
+<span class="sd">        This method performs linear interpolation on a log-log scale to</span>
+<span class="sd">        estimate the value of x for a given y, based on the provided table</span>
+<span class="sd">        of x and y values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab (numpy.ndarray): A 2D array where the first column represents x</span>
+<span class="sd">                values and the second column represents y values.</span>
+<span class="sd">            given_y (float): The target y value for which to estimate x.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The estimated x value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tab_x</span><span class="p">,</span><span class="n">tab_y</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">tab</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_index</span><span class="p">(</span><span class="n">tab_y</span><span class="p">,</span><span class="n">given_y</span><span class="p">)</span>
+        
+        <span class="n">tab_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_x</span><span class="p">))</span>
+        <span class="n">tab_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tab_y</span><span class="p">))</span> 
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tab_x</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tab_y</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">given_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">given_y</span><span class="p">)</span>
+        
+        <span class="n">pente</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">x_inter</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">given_y</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">pente</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x_inter</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="CompareMethodsMeshSize.get_N_deg_M">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_deg_M">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_N_deg_M</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">given_precision</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">impose_bc</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the number of vertices (N) needed to achieved a given precision for a given method.</span>
+<span class="sd">        </span>
+<span class="sd">        This method estimates the required mesh size (number of vertices) for</span>
+<span class="sd">        a given method, degree, and optionally an M value (for the</span>
+<span class="sd">        &quot;Mult&quot; method) to achieved a given precision, using linear interpolation on a log-log scale.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method (str): The error estimation method (&quot;FEM&quot;, &quot;Corr&quot;, or &quot;Mult&quot;).</span>
+<span class="sd">            given_precision (float): The target precision (L2 error norm).</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            M (float, optional): Lifting constant. Required for &quot;Mult&quot; method. Defaults to None.</span>
+<span class="sd">            impose_bc (bool, optional): Whether to impose boundary conditions. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The estimated number of vertices (N).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">,</span><span class="s2">&quot;Corr&quot;</span><span class="p">,</span><span class="s2">&quot;Mult&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;method=</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> is not implemented&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;M is required for </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">csv_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+                <span class="n">csv_file</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_M</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">csv_file</span> <span class="o">+=</span> <span class="s1">&#39;_weak&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">impose_bc</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">csv_file</span> <span class="o">+=</span> <span class="s2">&quot;.csv&quot;</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1"> P</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1"> not found&#39;</span><span class="p">)</span>
+        
+        
+        <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">tab_err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="n">tab_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_nb_vert</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">tab_N</span><span class="p">,</span><span class="n">tab_err</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__linear_interpolation_on_x</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span><span class="n">given_precision</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CompareMethodsMeshSize.get_N_at_given_precision_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.get_N_at_given_precision_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_N_at_given_precision_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">given_precision</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the number of vertices (N) needed for each method to achieve a given precision.</span>
+
+<span class="sd">        This method estimates the required mesh size (number of vertices) for</span>
+<span class="sd">        each method (FEM, Corr, Mult) to achieve a given precision, for a</span>
+<span class="sd">        given degree and optionally a range of M values (for the &quot;Mult&quot;</span>
+<span class="sd">        method).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            given_precision (float): The target precision (L2 error norm).</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: A dictionary containing the estimated number of vertices (N)</span>
+<span class="sd">                for each method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tab_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;FEM&quot;</span><span class="p">,</span><span class="s2">&quot;Corr&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">tab_M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tab_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Mult&quot;</span><span class="p">)</span>
+        
+        <span class="n">tab_N</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">tab_methods</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;Mult&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">tab_M</span><span class="p">:</span>
+                    <span class="n">impose_bc</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_N_deg_M</span><span class="p">(</span><span class="n">method</span><span class="p">,</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">impose_bc</span><span class="p">)</span>
+                    <span class="n">tab_N</span><span class="p">[</span><span class="n">method</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span> <span class="o">=</span> <span class="n">N</span>
+                    
+                    <span class="n">impose_bc</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_N_deg_M</span><span class="p">(</span><span class="n">method</span><span class="p">,</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">impose_bc</span><span class="p">)</span>
+                    <span class="n">tab_N</span><span class="p">[</span><span class="n">method</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;_weak&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">N</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_N_deg_M</span><span class="p">(</span><span class="n">method</span><span class="p">,</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">)</span>
+                <span class="n">tab_N</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="n">N</span>
+        
+        <span class="k">return</span> <span class="n">tab_N</span></div>
+
+    
+<div class="viewcode-block" id="CompareMethodsMeshSize.save_tab_given_precisions_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_given_precisions_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tab_given_precision</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save a table of required N for given precisions, degree, and all M values.</span>
+
+<span class="sd">        This method calculates and saves a table showing the required number of</span>
+<span class="sd">        vertices (N) for each method (FEM, Corr, Mult) to achieve a set of</span>
+<span class="sd">        given precisions, for a specific degree and all specified M values.</span>
+<span class="sd">        The table is saved as both a CSV and a PNG image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+<span class="sd">            tab_given_precision (list, optional): A list of target precisions (L2 error norms). Defaults to [1e-3, 1e-4].</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: The generated DataFrame containing the required N values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span> <span class="o">+</span> <span class="s2">&quot;TabN/&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">result_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">result_dir</span><span class="p">)</span>
+        
+        <span class="n">tab_N_prec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">given_precision</span> <span class="ow">in</span> <span class="n">tab_given_precision</span><span class="p">:</span>
+            <span class="n">tab_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_N_at_given_precision_deg_allM</span><span class="p">(</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tab_N</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tab_N_prec</span><span class="p">:</span>
+                    <span class="n">tab_N_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">tab_N_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_N</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">tab_methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tab_N</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tab_N_prec</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">tab_given_precision</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">tab_methods</span><span class="p">)</span>
+        
+        <span class="c1"># apply scientific formats for the index</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s1">.0e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabN_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">df</span></div>
+
+    
+<div class="viewcode-block" id="CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsMeshSize.save_tab_given_precisions_alldeg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_given_precisions_alldeg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save tables of required N for given precisions, all degrees, and all M values.</span>
+
+<span class="sd">        This method calculates and saves tables showing the required number of</span>
+<span class="sd">        vertices (N) for each method (FEM, Corr, Mult) to achieve a set of</span>
+<span class="sd">        given precisions, for all degrees and all specified M values. The</span>
+<span class="sd">        tables are saved as both CSV and PNG images.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span> <span class="o">+</span> <span class="s2">&quot;TabN/&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">result_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">result_dir</span><span class="p">)</span>
+            
+        <span class="n">df_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="n">tab_given_precision</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="o">**-</span><span class="p">(</span><span class="n">degree</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span><span class="mi">10</span><span class="o">**-</span><span class="p">(</span><span class="n">degree</span><span class="o">+</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="n">df_deg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_tab_given_precisions_deg_allM</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">,</span><span class="n">tab_given_precision</span><span class="p">)</span>
+            <span class="n">df_all</span><span class="p">[</span><span class="n">degree</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_deg</span>
+            
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_all</span><span class="p">)</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabN_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span></div>
+</div>
+
+        
+<div class="viewcode-block" id="CompareMethodsDoFs">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsDoFs">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompareMethodsDoFs</span><span class="p">(</span><span class="n">CompareMethodsMeshSize</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CompareMethodsDoFs class.</span>
+
+<span class="sd">    This subclass of `CompareMethodsMeshSize` provides methods for comparing different error estimation</span>
+<span class="sd">    methods (FEM, additive correction, multiplicative correction) and</span>
+<span class="sd">    visualizing the results, with a focus on mesh size and precision, in particular</span>
+<span class="sd">    the number of degrees of freedom (DoFs).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CompareMethodsDoFs.get_total_parameters_of_net">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_total_parameters_of_net">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_total_parameters_of_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_theta</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total number of parameters in the neural network.</span>
+
+<span class="sd">        This method calculates and returns the total number of trainable</span>
+<span class="sd">        parameters in the neural network used for the predicted solution.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u_theta: The predicted solution object, containing the neural network.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The total number of parameters in the network.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">u_theta</span><span class="o">.</span><span class="n">net</span>
+        
+        <span class="n">total_params</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">total_params</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">total_params</span></div>
+
+    
+<div class="viewcode-block" id="CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsDoFs.get_dofs_at_given_precision_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dofs_at_given_precision_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">given_precision</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of degrees of freedom (DoFs) for each method at a given precision.</span>
+
+<span class="sd">        This method calculates the required number of vertices (N) for each</span>
+<span class="sd">        method to achieve a given precision, then determines the corresponding</span>
+<span class="sd">        number of DoFs for each method using the calculated N values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            given_precision (float): The target precision (L2 error norm).</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple containing two dictionaries: `tab_N` with the</span>
+<span class="sd">                estimated number of vertices (N) for each method, and</span>
+<span class="sd">                `tab_nb_dofs` with the corresponding number of DoFs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tab_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_N_at_given_precision_deg_allM</span><span class="p">(</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="o">=</span><span class="n">tab_M</span><span class="p">)</span>
+        <span class="c1"># round the values to the upper integer</span>
+        <span class="n">tab_N</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="nb">round</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">tab_N</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">solver_type</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">problem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">pb_considered</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">,</span> <span class="n">error_degree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high_degree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_uref</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">tab_nb_dofs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">tab_N</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">solver</span><span class="o">.</span><span class="n">set_meshsize</span><span class="p">(</span><span class="n">nb_cell</span><span class="o">=</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">nb_dofs</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">V</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span>
+            <span class="n">tab_nb_dofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nb_dofs</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">tab_N</span><span class="p">,</span><span class="n">tab_nb_dofs</span>  </div>
+
+            
+<div class="viewcode-block" id="CompareMethodsDoFs.save_tab_given_precisions_deg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_deg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_given_precisions_deg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_theta</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tab_given_precision</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">],</span> <span class="n">n_params</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save tables of DoFs and N for given precisions, degree, and all M values.</span>
+
+<span class="sd">        This method calculates and saves tables of the required number of</span>
+<span class="sd">        vertices (N) and degrees of freedom (DoFs) for each method (FEM,</span>
+<span class="sd">        Corr, Mult, and PINNs) to achieve a set of given precisions, for a</span>
+<span class="sd">        specific degree and all specified M values. It also calculates DoFs</span>
+<span class="sd">        with network parameters and saves them. The tables are saved as CSV</span>
+<span class="sd">        and PNG images.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u_theta: The predicted solution, containing the neural network.</span>
+<span class="sd">            degree (int): The degree of the finite element solution.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+<span class="sd">            tab_given_precision (list, optional): A list of target precisions. Defaults to [1e-3, 1e-4].</span>
+<span class="sd">            n_params (int, optional): Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: A tuple containing two pandas DataFrames: `df` with N and</span>
+<span class="sd">                DoFs, and `df_dofs_nparams` with DoFs including network</span>
+<span class="sd">                parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span> <span class="o">+</span> <span class="s2">&quot;TabDoFs/&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">result_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">result_dir</span><span class="p">)</span>
+        
+        <span class="n">tab_N_prec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">tab_DoFs_prec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">tab_DoFs_prec_nparams</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">given_precision</span> <span class="ow">in</span> <span class="n">tab_given_precision</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# given_precision=</span><span class="si">{</span><span class="n">given_precision</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">tab_N</span><span class="p">,</span><span class="n">tab_nb_dofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dofs_at_given_precision_deg_allM</span><span class="p">(</span><span class="n">given_precision</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tab_N</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tab_DoFs_prec</span><span class="p">:</span>
+                    <span class="n">tab_N_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">tab_DoFs_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">tab_DoFs_prec_nparams</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">tab_N_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_N</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="n">tab_DoFs_prec</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_nb_dofs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">tab_DoFs_prec_nparams</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab_nb_dofs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">n_params</span><span class="p">)</span>                
+            <span class="n">tab_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PINNs&quot;</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">tab_N</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            
+        <span class="n">total_dofs_PINNs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_parameters_of_net</span><span class="p">(</span><span class="n">u_theta</span><span class="p">)</span>
+        <span class="n">tab_DoFs_prec</span><span class="p">[</span><span class="s2">&quot;PINNs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">total_dofs_PINNs</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">tab_given_precision</span><span class="p">)</span>
+        <span class="n">tab_N_prec</span><span class="p">[</span><span class="s2">&quot;PINNs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">tab_given_precision</span><span class="p">)</span>
+                
+        <span class="n">df_N</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tab_N_prec</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">tab_given_precision</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">tab_methods</span><span class="p">)</span>
+        <span class="n">df_Dofs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tab_DoFs_prec</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">tab_given_precision</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">tab_methods</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_N</span><span class="p">,</span><span class="n">df_Dofs</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span><span class="s2">&quot;DoFs&quot;</span><span class="p">],</span><span class="n">tab_methods</span><span class="p">],</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">,</span><span class="s2">&quot;method&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabDoFs_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span>
+        
+        <span class="c1"># Compute for n_params</span>
+
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">tab_DoFs_prec_nparams</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;FEM&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tab_DoFs_prec_nparams</span><span class="p">[</span><span class="n">method</span><span class="p">])):</span>
+                    <span class="n">tab_DoFs_prec_nparams</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">total_dofs_PINNs</span>
+    
+        <span class="n">df_dofs_nparams</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tab_DoFs_prec_nparams</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">tab_given_precision</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">tab_methods</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabDoFsParam_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_degree</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s1">_nparams</span><span class="si">{</span><span class="n">n_params</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df_dofs_nparams</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df_dofs_nparams</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span><span class="n">df_dofs_nparams</span></div>
+
+
+<div class="viewcode-block" id="CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM">
+<a class="viewcode-back" href="../../../enrichedfem.error_estimations.html#enrichedfem.error_estimations.compare.CompareMethodsDoFs.save_tab_given_precisions_alldeg_allM">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tab_given_precisions_alldeg_allM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u_theta</span><span class="p">,</span> <span class="n">tab_M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_params</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save tables of DoFs and N for given precisions, all degrees, and all M values.</span>
+
+<span class="sd">        This method calculates and saves tables showing the required number of</span>
+<span class="sd">        vertices (N) and degrees of freedom (DoFs) for each method (FEM, Corr,</span>
+<span class="sd">        Mult, and PINNs) to achieve a set of given precisions, for all degrees</span>
+<span class="sd">        and all specified M values. It also calculates DoFs with network</span>
+<span class="sd">        parameters and saves them. The tables are saved as CSV and PNG images.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            u_theta: The predicted solution, containing the neural network.</span>
+<span class="sd">            tab_M (list, optional): A list of M values to consider for the &quot;Mult&quot; method. Defaults to None.</span>
+<span class="sd">            n_params (int, optional): Number of parameters per DoF to consider for additional DoF calculation. Defaults to 100.</span>
+
+<span class="sd">        Returns: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">results_dir</span> <span class="o">+</span> <span class="s2">&quot;TabDoFs/&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">result_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">result_dir</span><span class="p">)</span>
+        
+        <span class="n">df_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">df_dofs_nparams_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">tab_degree</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## degree=</span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">tab_given_precision</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="o">**-</span><span class="p">(</span><span class="n">degree</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span><span class="mi">10</span><span class="o">**-</span><span class="p">(</span><span class="n">degree</span><span class="o">+</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="n">df</span><span class="p">,</span><span class="n">df_dofs_nparams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_tab_given_precisions_deg_allM</span><span class="p">(</span><span class="n">u_theta</span><span class="p">,</span><span class="n">degree</span><span class="p">,</span><span class="n">tab_M</span><span class="p">,</span><span class="n">tab_given_precision</span><span class="o">=</span><span class="n">tab_given_precision</span><span class="p">,</span><span class="n">n_params</span><span class="o">=</span><span class="n">n_params</span><span class="p">)</span>
+            <span class="n">df_all</span><span class="p">[</span><span class="n">degree</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+            <span class="n">df_dofs_nparams_all</span><span class="p">[</span><span class="n">degree</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_dofs_nparams</span>
+            
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_all</span><span class="p">)</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabDoFs_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span>
+        
+        <span class="n">df_dofs_nparams</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_dofs_nparams_all</span><span class="p">)</span>
+        
+        <span class="c1"># Sauvegarder le DataFrame au format CSV et PNG</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">result_dir</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;TabDoFsParam_case</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">testcase</span><span class="si">}</span><span class="s1">_v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s1">_param</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ee</span><span class="o">.</span><span class="n">param_num</span><span class="si">}</span><span class="s1">_nparams</span><span class="si">{</span><span class="n">n_params</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">df_dofs_nparams</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+        <span class="c1"># table_conversion = &quot;chrome&quot;</span>
+        <span class="n">table_conversion</span> <span class="o">=</span> <span class="s2">&quot;matplotlib&quot;</span>
+        <span class="n">dfi</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">df_dofs_nparams</span><span class="p">,</span> <span class="n">filename</span><span class="o">+</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">table_conversion</span><span class="o">=</span><span class="n">table_conversion</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, F. Lecourtier.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
