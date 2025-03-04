@@ -79,7 +79,7 @@ def run_refsol(eeconfig,problem):
         tab_param_num = eeconfig["param_num"]   
         params = []
         
-        savedir += "uref/" 
+        savedir += "uref_random/" 
         create_tree(savedir)
         for param_num in tab_param_num:
             print(f"\n############################## Param num: {param_num} ##############################\n")
@@ -93,7 +93,7 @@ def run_refsol(eeconfig,problem):
         assert "params" in eeconfig
         params = eeconfig["params"]
         
-        savedir += "uref_random/"
+        savedir += "uref/"
         create_tree(savedir)
         for param_num,param in enumerate(params):
             filename = savedir + f"u_ref_{param_num}.npy"
