@@ -335,14 +335,11 @@ class TestCase4(TestCase2D):
         version (int): The version number of the test case. Defaults to 1.
     """
     def __init__(self,version=1):
-        assert version in [1,2,3]
+        assert version in [1]
         super().__init__(5,version)
         self.geometry = Donut2()
         self.nb_parameters = 1
-        if self.version != 3:
-            self.parameter_domain = [[2.4, 2.600001]]
-        else:
-            self.parameter_domain = [[2.0, 3.000001]]
+        self.parameter_domain = [[2.4, 2.600001]]
         self.ana_sol = True
         self.predexactBC = True
 

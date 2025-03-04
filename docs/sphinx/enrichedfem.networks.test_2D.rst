@@ -11,7 +11,6 @@ Subpackages
    enrichedfem.networks.test_2D.test_2
    enrichedfem.networks.test_2D.test_3
    enrichedfem.networks.test_2D.test_4
-   enrichedfem.networks.test_2D.test_5
 
 Module contents
 ---------------
