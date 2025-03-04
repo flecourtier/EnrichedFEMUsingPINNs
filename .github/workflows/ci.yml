@@ -3,7 +3,8 @@ name: Deploy Documentation
 on:
   push:
     branches:
-      - main
+      # - main
+      - never-run-this-branch
 
 jobs:
   deploy:
