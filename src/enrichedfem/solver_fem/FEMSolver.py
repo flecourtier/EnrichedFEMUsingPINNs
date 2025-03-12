@@ -18,8 +18,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-# rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-# rc('text', usetex=True)
+latex_activate = False
+try:
+    rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+    rc('text', usetex=True)
+    latex_activate = True
+except:
+    print("Latex not activated")
 
 df.parameters["ghost_mode"] = "shared_facet"
 df.parameters["form_compiler"]["cpp_optimize"] = True
@@ -327,15 +332,19 @@ class FEMSolver(abc.ABC):
             plt.figure(figsize=(15,5))
             
             plt.subplot(1,3,2)
-            df.plot(sol_V,label=r"$u_h$")
-            df.plot(u_ex_V,label=r"$u$")
+            if latex_activate:
+                titles = [r"$u_h$",r"$u$",r"$|u-u_h|$"]
+            else:
+                titles = ["uh","u","|u-uh|"]
+            df.plot(sol_V,label=titles[0])
+            df.plot(u_ex_V,label=titles[1])
             plt.title("FEM solution",fontsize=title_size)
             plt.legend(fontsize=legend_size)
             
             plt.subplot(1,3,3)
             error_sol = df.Function(V_solve)
             error_sol.vector()[:] = abs(sol_V.vector()[:] - u_ex_V.vector()[:])
-            df.plot(error_sol,label=r"$|u-u_h|$")
+            df.plot(error_sol,label=titles[2])
             plt.title("FEM error",fontsize=title_size)
             plt.legend(fontsize=legend_size)
             
@@ -349,13 +358,21 @@ class FEMSolver(abc.ABC):
             c = df.plot(u_ex_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Analytical solution \\ $u$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Analytical solution \\ $u$ \end{center}"
+            else:
+                title = "Analytical solution u"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(1,3,2)
             c = df.plot(sol_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center}FEM solution \\ $u_h$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center}FEM solution \\ $u_h$ \end{center}"
+            else:
+                title = "FEM solution uh"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(1,3,3)
             error_sol = df.Function(V_solve)
@@ -363,7 +380,11 @@ class FEMSolver(abc.ABC):
             c = df.plot(error_sol, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center}Error \\ $|u-u_h|$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center}Error \\ $|u-u_h|$ \end{center}"
+            else:
+                title = "Error |u-uh|"
+            plt.title(title,fontsize=title_size, pad=40)
             
         if filename is not None:
             plt.tight_layout()
@@ -447,7 +468,7 @@ class FEMSolver(abc.ABC):
             else:
                 u_ex_Vex = self.tab_uref[i]
             sol_Vex = df.interpolate(sol,self.V_ex)
-            self._plot_results_fem(u_ex_Vex, sol_Vex, self.V_ex, norme_L2, plot_result, filename)
+            self._plot_results_fem(u_ex_Vex, sol_Vex, self.V_ex, plot_result, filename)
         
         return sol,norme_L2
     
@@ -483,22 +504,26 @@ class FEMSolver(abc.ABC):
             legend_size = 20  # Taille des légendes
             plt.figure(figsize=(15,5))
             
-            plt.subplot(1,3,1)
-            if type == "Add":
-                df.plot(C_tild_V,label=r"$p_h^+$")
-                df.plot(C_ex_V,label=r"$u-u_\theta$")
+            if latex_activate:
+                if type == "Add":
+                    titles = [r"$p_h^+$",r"$u-u_\theta$",r"$u_h^+$",r"$u$",r"$|u-u_h^+|$"]
+                else:
+                    titles = [r"$p_h^\times$",r"$u/u_\theta$",r"$u_h^\times$",r"$u$",r"$|u-u_h^\times|$"]
             else:
-                df.plot(C_tild_V,label=r"$p_h^\times$")
-                df.plot(C_ex_V,label=r"$u/u_\theta$")
+                if type == "Add":
+                    titles = ["ph+","u-utheta","uh+","u","|u-uh|"]
+                else:
+                    titles = ["phx","u/utheta","uhx","u","|u-uhx|"]
+            
+            plt.subplot(1,3,1)
+            df.plot(C_tild_V,label=titles[0])
+            df.plot(C_ex_V,label=titles[1])
             plt.title(f"{type} correction{supp}",fontsize=title_size)
             plt.legend(fontsize=legend_size)
             
             plt.subplot(1,3,2)
-            if type == "Add":
-                df.plot(sol_V,label=r"$u_h^+$")
-            else:
-                df.plot(sol_V,label=r"$u_h^\times$")
-            df.plot(u_ex_V,label=r"$u$")
+            df.plot(sol_V,label=titles[2])
+            df.plot(u_ex_V,label=titles[3])
             plt.title(f"{type} solution{supp}",fontsize=title_size)
             plt.legend(fontsize=legend_size)
             
@@ -506,11 +531,10 @@ class FEMSolver(abc.ABC):
             if type == "Add":
                 error_sol = df.Function(V_solve)
                 error_sol.vector()[:] = abs(sol_V.vector()[:] - u_ex_V.vector()[:])
-                df.plot(error_sol,label=r"$|u-u_h^+|$")
             else:
                 error_sol = df.Function(V_solve)
                 error_sol.vector()[:] = abs(sol_V.vector()[:] - u_ex_V.vector()[:])
-                df.plot(error_sol,label=r"$|u-u_h^\times|$")
+            df.plot(error_sol,label=titles[4])
                 
             plt.title(f"{type} error{supp}",fontsize=title_size)
             plt.legend(fontsize=legend_size)
@@ -526,13 +550,21 @@ class FEMSolver(abc.ABC):
             c = df.plot(u_ex_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Analytical solution \\ $u$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Analytical solution \\ $u$ \end{center}"
+            else:
+                title = "Analytical solution u"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(2,3,2)
             c = df.plot(sol_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Add solution \\ $u_h^+$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} FEM solution \\ $u_h^+$ \end{center}"
+            else:
+                title = "FEM solution uh+"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(2,3,3)
             error_sol = df.Function(V_solve)
@@ -540,20 +572,32 @@ class FEMSolver(abc.ABC):
             c = df.plot(error_sol, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Error \\ $|u-u_h^+|$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Error \\ $|u-u_h^+|$ \end{center}"
+            else:
+                title = "Error |u-uh+|"
+            plt.title(title,fontsize=title_size, pad=40)
             
             # Correction
             plt.subplot(2,3,4)
             c = df.plot(C_ex_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Analytical correction \\ $u - u_\theta$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Analytical correction \\ $u - u_\theta$ \end{center}"
+            else:
+                title = "Analytical correction u-utheta"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(2,3,5)
             c = df.plot(C_tild_V, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Add correction \\ $p_h^+$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Add correction \\ $p_h^+$ \end{center}"
+            else:
+                title = "Add correction ph+"
+            plt.title(title,fontsize=title_size, pad=40)
             
             plt.subplot(2,3,6)
             error_C = df.Function(V_solve)
@@ -561,7 +605,11 @@ class FEMSolver(abc.ABC):
             c = df.plot(error_C, cmap=colormap)
             cbar = plt.colorbar(c)
             cbar.ax.yaxis.set_tick_params(labelsize=labelsize)
-            plt.title(r"\begin{center} Error \\ $|(u-u_\theta)-p_h^+|$ \end{center}",fontsize=title_size, pad=40)
+            if latex_activate:
+                title = r"\begin{center} Error \\ $|(u-u_\theta)-p_h^+|$ \end{center}"
+            else:
+                title = "Error |(u-utheta)-ph+|"
+            plt.title(title,fontsize=title_size, pad=40)
             
         if plot_result:
             plt.show()

@@ -8,9 +8,13 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run tests')
 parser.add_argument('--new_run', action='store_true', help='Run new simulations')
+parser.add_argument('--plot_result', action='store_true', help='Plot results', default=False)
+parser.add_argument('--save_fig', action='store_true', help='Save figures', default=False)
 args = parser.parse_args()
 
 new_run = args.new_run
+plot_result = args.plot_result
+save_fig = args.save_fig
 
 if new_run:
     print("Be careful, you are running new simulations !!")
@@ -34,7 +38,7 @@ def run_error_estimates(eeconfig,problem,u_theta):
         
         for param_num in tab_param_num:
             print(f"\n############################## Param num: {param_num} ##############################\n")
-            error_estimations = ErrorEstimations(param_num, pb_considered=problem, repo_dir = current_dir, tab_degree=tab_degree)
+            error_estimations = ErrorEstimations(param_num, pb_considered=problem, repo_dir = current_dir, tab_degree=tab_degree,plot_result=plot_result,save_fig=save_fig)
             compare_methods = CompareMethods(error_estimations)
             
             if "FEM" in global_methods:
