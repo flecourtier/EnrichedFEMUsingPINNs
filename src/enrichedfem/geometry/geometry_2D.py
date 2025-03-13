@@ -16,6 +16,18 @@ class Square:
         self.center = [(a+b)/2,(a2+b2)/2]
         self.radius = (b-a)/2
         
+    def phi(self, pre, x):
+        """Define the level set function phi for the square.
+
+        :param pre: The precision module (e.g., dolfin, numpy).
+        :param x: Spatial coordinates.
+        :return: The level set function phi.
+        """
+        x1,x2 = x
+        a,b = self.box[0]
+        a2,b2 = self.box[1]
+        return (x1-a)*(b-x1)*(x2-a2)*(b2-x2)
+        
 class Square1(Square):
     """Represents a square.
 

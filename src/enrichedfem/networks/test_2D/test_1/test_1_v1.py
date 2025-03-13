@@ -59,14 +59,9 @@ class Poisson_2D(pdes.AbstractPDEx):
         return u_xx + u_yy + f
 
     def post_processing(self, x, mu, w):
-        x1, x2 = x.get_coordinates()
-        
-        a = self.problem.geometry.box[0][0]
-        b = self.problem.geometry.box[0][1]
-        a2 = self.problem.geometry.box[1][0]
-        b2 = self.problem.geometry.box[1][1]
-        
-        return (x1-a)*(b-x1)*(x2-a2)*(b2-x2)*w
+        x1, x2 = x.get_coordinates()        
+        phi = self.problem.geometry.phi(torch, [x1, x2])
+        return phi*w
     
     def reference_solution(self, x, mu):
         x1, x2 = x.get_coordinates()

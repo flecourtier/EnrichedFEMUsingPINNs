@@ -66,8 +66,8 @@ class Poisson_2D(pdes.AbstractPDEx):
 
     def post_processing(self, x, mu, w):
         x1, x2 = x.get_coordinates()
-        return (1 - x1) * x1 * x2 * (1 - x2) * w
-
+        phi = self.problem.geometry.phi(torch, [x1, x2])
+        return phi*w
 
 def Run_laplacian2D(pde, new_training = False, largenet=False):
     x_sampler = sampling_pde.XSampler(pde=pde)

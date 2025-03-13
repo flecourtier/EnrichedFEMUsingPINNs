@@ -13,6 +13,16 @@ class Line:
     def __init__(self,a,b):
         self.box = [[a,b]]
         
+    def phi(self, pre, x):
+        """Define the level set function phi for the line segment.
+
+        :param pre: The precision module (e.g., dolfin, numpy).
+        :param x: Spatial coordinates.
+        :return: The level set function phi.
+        """
+        a,b = self.box[0]
+        return (x-a)*(x-b)
+        
 class Line1(Line):
     """Represents a 1D line segment.
 
